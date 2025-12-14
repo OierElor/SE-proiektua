@@ -12,17 +12,29 @@ int azkenHaria;
 void cpuHasieratu(int ckop, int hkop){
     int i;
     int j;
+    hariTotalak = ckop * hkop;
     cpu.corekop = ckop;
+    cpu.harikopCoreko = hkop;
+    cpu.hariakIlara = (haria*)malloc(hariTotalak * sizeof(haria));
+    if (cpu.hariakIlara == NULL) {
+        perror("Errorea malloc egitean hariakIlara-rentzat");
+        exit(EXIT_FAILURE);
+    }
     cpu.coreak = (Core*)malloc(ckop * sizeof(Core));
     if (cpu.coreak == NULL) {
         perror("Errorea malloc egitean Corentzat");
         exit(EXIT_FAILURE);
     }
     for(i = 0; i < ckop; i++){
-        cpu.coreak[i].harikop = hkop;
         cpu.coreak[i].hariak = (haria*)malloc(hkop * sizeof(haria));
         for(j = 0; j < hkop; j++){
             cpu.coreak[i].hariak[j].libre=1;
+            int indizea = i * hkop + j;
+            if (indizea < hariTotalak) {
+                cpu.hariakIlara[indizea] = cpu.coreak[i].hariak[j];
+            } else {
+
+            }
         }
         if (cpu.coreak[i].hariak == NULL) {
             perror("Errorea malloc egitean Harientzat");
@@ -35,45 +47,54 @@ void cpuHasieratu(int ckop, int hkop){
     }
 }
 
-//Dispacher
-void pcbCPUariEsleitu(PCB *jasotakopcb){
+void Dispatcher(PCB *jasotakopcb){
     jasotakopcb->running=1;
     haria *esleitua = lortuHariAskea();
-    if(esleitua->libre==0){
-        printf(" <-- %d prozesua kanporatu da eta %d prozesua hasieratu da.", esleitua->pcb->pid, jasotakopcb->garrantzia);
-        esleitua->pcb->running=0;
-        prozesuaPush((esleitua->pcb));
+    if (esleitua==NULL){
+        printf("<-- CPU osoa okupatuta dago ezin da haririk sartu CPUan. ");
+        prozesuaPush(jasotakopcb);
     }
     else{
-        printf(" <-- %d prozesua hasieratu da.", jasotakopcb->pid);
+        jasotakopcb->running=1;
+        if(esleitua->libre==0){
+            printf(" <-- %d prozesua kanporatu da eta %d prozesua hasieratu da.", esleitua->pcb->pid, jasotakopcb->pid);
+            esleitua->pcb->running=0;
+            prozesuaPush((esleitua->pcb));
+        }
+        else{
+            printf(" <-- %d prozesua hasieratu da.", jasotakopcb->pid);
+        }
+        esleitua->pcb = jasotakopcb;
+        esleitua->libre = 0;
+        printf(" <-- Corea:%d; Haria:%d", azkenHaria/cpu.corekop, azkenHaria%cpu.corekop);
     }
-    esleitua->pcb = jasotakopcb;
-    esleitua->libre = 0;
 }
 
 haria* lortuHariAskea(){
-    int i;
-    int j;
-    for(i = 0; i < cpu.corekop; i++){
-        for(j = 0; j < cpu.coreak[i].harikop; j++){
-            if(cpu.coreak[i].hariak[j].libre == 1){
-                azkenHaria=j;
-                azkenCorea=i;
-                return &cpu.coreak[i].hariak[j];
-            }
+    for(int i = 0; i < hariTotalak; i++){
+        if(cpu.hariakIlara[i].libre == 1){
+            azkenHaria=i;
+            return &cpu.hariakIlara[i];
         }
     }
-    if(azkenHaria<cpu.coreak[azkenCorea].harikop-1){
+    if(azkenHaria<hariTotalak-1){
         azkenHaria++;
     }
     else{
         azkenHaria=0;
-        if(azkenCorea<cpu.corekop-1){
-            azkenCorea++;
+    }
+    int buelta=0;
+    while(buelta<hariTotalak && cpu.hariakIlara[azkenHaria].pcb->blokeatuta==1){
+        if(azkenHaria<hariTotalak-1){
+            azkenHaria++;
         }
         else{
-            azkenCorea=0;
+            azkenHaria=0;
         }
+        buelta++;
     }
-    return &cpu.coreak[azkenCorea].hariak[azkenHaria];
+    if(buelta==hariTotalak){
+        return NULL;
+    }
+    return &cpu.hariakIlara[azkenHaria];
 }

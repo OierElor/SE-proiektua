@@ -12,12 +12,13 @@ typedef struct{
 }haria;
 
 typedef struct{
-    int harikop;
     haria *hariak;
 }Core;
 
 typedef struct{
+    haria *hariakIlara;
     int corekop;
+    int harikopCoreko;
     Core *coreak;
 }CPU;
 
@@ -26,10 +27,9 @@ void cpuHasieratu(int ckop, int hkop);
 extern CPU cpu;
 
 extern int hariTotalak;
-extern int azkenCorea;
 extern int azkenHaria;
 
-void pcbCPUariEsleitu(PCB *pcb);
+void Dispatcher(PCB *pcb);
 
 haria* lortuHariAskea();
 

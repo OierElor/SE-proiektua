@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "prozesuak.h"
-#include "CPU.h"
 
 int last_ID = 1;
 
@@ -23,6 +22,7 @@ void prozesuakSortu(int garrantzi){
     }
 
     nodoa->pcb = pcb_berria;
+    nodoa->pcb->running = 0;
     nodoa->pcb->running = 0;
     nodoa->pcb->garrantzia = garrantzi;
 

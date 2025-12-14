@@ -4,3 +4,9 @@
 #include <unistd.h>
 
 void garrantziaIgo();
+
+void garrantziaReset();
+
+void blokeatuLehena();
+
+void askatuBlokeoDenak();

@@ -25,11 +25,9 @@ int main(){
     //cpu-hasieratu
     int harikop = 2;
     int corekop = 2;
-    hariTotalak = corekop*harikop;
     azkenHaria=0;
-    azkenCorea=0;
     cpuHasieratu(corekop, harikop);
-    printf("Hari kopurua: %d \n", harikop);
+    printf("Hari kopurua: %d \n", cpu.harikopCoreko);
     printf("Core kopurua: %d \n", cpu.corekop);
     Done = 0;
     //Prozesuak sortu
@@ -38,7 +36,7 @@ int main(){
     }
 
     //Temporizadore kantitatea ezaretzeko
-    TempCont = 2;
+    TempCont = 3;
     //Erlojua hasieratu
     pthread_t clock;
     //Scheduler hasieratu
@@ -50,7 +48,7 @@ int main(){
     TempArgs *args = calloc(TempCont, sizeof(TempArgs));
 
     // Maiztasun desberdinak definitu
-    int maiztasunak[] = {2, 5};
+    int maiztasunak[] = {2, 3, 20};
 
     for(int i=0; i<TempCont; i++){
         args[i].id = i;

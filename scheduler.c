@@ -14,12 +14,11 @@ void *scheduler(void *arg){
         //Nodoko PCB emandako CPUko malloc-ean sartu
         PCB *sarrera = prozesuaPoll();
         if(sarrera->pid!=-1){
-            pcbCPUariEsleitu(sarrera);
+            Dispatcher(sarrera);
         }
         else{
             printf(" <-- Ez dago PCBrik ready ilaran.");
         }
-        printf(" <-- Corea:%d; Haria:%d", azkenCorea, azkenHaria);
     }
     pthread_mutex_unlock(&mutexS);
 

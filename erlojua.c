@@ -38,10 +38,14 @@ void *temporizadorea(void *arg){
             i=0;
             printf(" <--Temp %d",
                 args->id);
-/*
+            //Ilarako pcb danen garrantzia igo
             if(args->id == 1){
-                garrantziaIgo();
-            }*/
+                blokeatuLehena();
+            }
+            // Hari guztien garrantzia = 0;
+            if(args->id == 2){
+                askatuBlokeoDenak();
+            }
             // Scheduler-ari seinalea bidali
             if(args->id == 0){
                 schedulerdeitu();
