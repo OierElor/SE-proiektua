@@ -17,7 +17,7 @@ typedef struct{
 }Core;
 
 typedef struct{
-    haria *hariakIlara;
+    haria **hariakIlara;
     int corekop;
     int harikopCoreko;
     Core *coreak;

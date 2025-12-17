@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <time.h>
 #include "erlojua.h"
 #include "CPU.h"
 #include "prozesuak.h"
@@ -20,6 +21,8 @@ pthread_cond_t condS = PTHREAD_COND_INITIALIZER;
 //Main Funtzioa
 
 int main(){
+    // Zenbaki ausazko sortzailea hasieratu uneko denborarekin
+    srand(time(NULL));
     //Hasieran sortzen diren prozesu kopurua
     int prosezuKop = 10;
     //Prosezuen ilara hasieratzeko
@@ -52,7 +55,7 @@ int main(){
     TempArgs *args = calloc(TempCont, sizeof(TempArgs));
 
     // Maiztasun desberdinak definitu
-    int maiztasunak[] = {5, 20};
+    int maiztasunak[] = {1, 7};
 
     for(int i=0; i<TempCont; i++){
         args[i].id = i;

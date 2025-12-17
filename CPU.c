@@ -15,7 +15,7 @@ void cpuHasieratu(int ckop, int hkop){
     hariTotalak = ckop * hkop;
     cpu.corekop = ckop;
     cpu.harikopCoreko = hkop;
-    cpu.hariakIlara = (haria*)malloc(hariTotalak * sizeof(haria));
+    cpu.hariakIlara = (haria**)malloc(hariTotalak * sizeof(haria*));
     if (cpu.hariakIlara == NULL) {
         perror("Errorea malloc egitean hariakIlara-rentzat");
         exit(EXIT_FAILURE);
@@ -32,7 +32,7 @@ void cpuHasieratu(int ckop, int hkop){
             cpu.coreak[i].hariak[j].coreID=i;
             int indizea = i * hkop + j;
             if (indizea < hariTotalak) {
-                cpu.hariakIlara[indizea] = cpu.coreak[i].hariak[j];
+                cpu.hariakIlara[indizea] = &cpu.coreak[i].hariak[j];
             } else {
 
             }
@@ -69,7 +69,7 @@ void Dispatcher(PCB *jasotakopcb){
         }
         esleitua->pcb = jasotakopcb;
         esleitua->libre = 0;
-        printf(" <-- Corea:%d; Haria:%d", azkenHaria/cpu.corekop, azkenHaria%cpu.corekop);
+        printf(" <-- Corea:%d; Haria:%d", azkenHaria/cpu.harikopCoreko, azkenHaria%cpu.harikopCoreko);
     }
 }
 
@@ -84,9 +84,9 @@ haria* lortuHariAskea(int preferentzia){
         }
     }
     for(int i = 0; i < hariTotalak; i++){
-        if(cpu.hariakIlara[i].libre == 1){
+        if(cpu.hariakIlara[i]->libre == 1){
             azkenHaria=i;
-            return &cpu.hariakIlara[i];
+            return cpu.hariakIlara[i];
         }
     }
     if(azkenHaria<hariTotalak-1){
@@ -96,7 +96,7 @@ haria* lortuHariAskea(int preferentzia){
         azkenHaria=0;
     }
     int buelta=0;
-    while(buelta<hariTotalak && cpu.hariakIlara[azkenHaria].pcb != NULL && cpu.hariakIlara[azkenHaria].pcb->blokeatuta==1){
+    while(buelta<hariTotalak && cpu.hariakIlara[azkenHaria]->pcb != NULL && cpu.hariakIlara[azkenHaria]->pcb->blokeatuta==1){
         if(azkenHaria<hariTotalak-1){
             azkenHaria++;
         }
@@ -108,5 +108,5 @@ haria* lortuHariAskea(int preferentzia){
     if(buelta==hariTotalak){
         return NULL;
     }
-    return &cpu.hariakIlara[azkenHaria];
+    return cpu.hariakIlara[azkenHaria];
 }

@@ -60,8 +60,8 @@ void garrantziaReset(){
         }
     }
     for(int i=0; i<hariTotalak; i++){
-        if(cpu.hariakIlara[i].pcb!=NULL){
-            cpu.hariakIlara[i].pcb->garrantzia=0;
+        if(cpu.hariakIlara[i]->pcb!=NULL){
+            cpu.hariakIlara[i]->pcb->garrantzia=0;
         }
     }
 }
@@ -82,8 +82,8 @@ void askatuBlokeoDenak(){
         }
     }
     for(int i=0; i<hariTotalak; i++){
-        if(cpu.hariakIlara[i].pcb!=NULL){
-            cpu.hariakIlara[i].pcb->blokeatuta=0;
+        if(cpu.hariakIlara[i]->pcb!=NULL){
+            cpu.hariakIlara[i]->pcb->blokeatuta=0;
         }
     }
 }
@@ -101,6 +101,7 @@ void ilarakoProzesuaHil(){
     }
     else{
         PCB* hildakoa = prozesuaPoll();
+        printf("<-- Hil da:%d",hildakoa->pid);
         free(hildakoa);
     }
 }
