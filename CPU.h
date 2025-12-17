@@ -8,6 +8,7 @@
 
 typedef struct{
     int libre;
+    int coreID; //Jakiteko haria ze coretakoa den
     PCB *pcb;
 }haria;
 
@@ -31,6 +32,6 @@ extern int azkenHaria;
 
 void Dispatcher(PCB *pcb);
 
-haria* lortuHariAskea();
+haria* lortuHariAskea(int preferentzia);
 
 #endif

@@ -6,6 +6,7 @@
 #include "CPU.h"
 #include "prozesuak.h"
 #include "scheduler.h"
+#include "gertaerak.h"
 
 
 
@@ -19,6 +20,8 @@ pthread_cond_t condS = PTHREAD_COND_INITIALIZER;
 //Main Funtzioa
 
 int main(){
+    //Hasieran sortzen diren prozesu kopurua
+    int prosezuKop = 10;
     //Prosezuen ilara hasieratzeko
     ready.lehena = NULL;
     ready.azkena = NULL;
@@ -27,16 +30,17 @@ int main(){
     int corekop = 2;
     azkenHaria=0;
     cpuHasieratu(corekop, harikop);
+    printf("Hasieran sortu diren prosezu kopurua: %d \n", prosezuKop);
     printf("Hari kopurua: %d \n", cpu.harikopCoreko);
     printf("Core kopurua: %d \n", cpu.corekop);
     Done = 0;
-    //Prozesuak sortu
-    for(int i=0; i<10; i++){
-         prozesuakSortu(i);
+    //Prozesuak sortu auzasko garrantzi batekin
+    for(int i=0; i<prosezuKop; i++){
+        prozesuaSortuGertaera();
     }
 
     //Temporizadore kantitatea ezaretzeko
-    TempCont = 3;
+    TempCont = 2;
     //Erlojua hasieratu
     pthread_t clock;
     //Scheduler hasieratu
@@ -48,7 +52,7 @@ int main(){
     TempArgs *args = calloc(TempCont, sizeof(TempArgs));
 
     // Maiztasun desberdinak definitu
-    int maiztasunak[] = {2, 3, 20};
+    int maiztasunak[] = {5, 20};
 
     for(int i=0; i<TempCont; i++){
         args[i].id = i;

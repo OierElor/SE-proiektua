@@ -23,7 +23,8 @@ void prozesuakSortu(int garrantzi){
 
     nodoa->pcb = pcb_berria;
     nodoa->pcb->running = 0;
-    nodoa->pcb->running = 0;
+    nodoa->pcb->blokeatuta = 0;
+    nodoa->pcb->preferentziaCPU = -1;
     nodoa->pcb->garrantzia = garrantzi;
 
     if(ready.lehena == NULL){
@@ -76,6 +77,10 @@ PCB* prozesuaPoll(){
         prozesu_ilara_zatia* lehen = ready.lehena;
         PCB *pcb_adierazlea = lehen->pcb;
         ready.lehena = ready.lehena->hurrengoa;
+
+        if (ready.lehena == NULL) {
+            ready.azkena = NULL;
+        }
         free(lehen);
         return pcb_adierazlea;
     }

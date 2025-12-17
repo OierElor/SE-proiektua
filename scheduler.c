@@ -7,8 +7,8 @@
 
 void *scheduler(void *arg){
     printf("Scheduler-a exekutatzen hasi da\n");
-    pthread_mutex_lock(&mutexS);
     while(1){
+         pthread_mutex_lock(&mutexS);
         // Scheduler-aren kondizio-aldagaia itxaron
         pthread_cond_wait(&condS, &mutexS);
         //Nodoko PCB emandako CPUko malloc-ean sartu
@@ -19,9 +19,8 @@ void *scheduler(void *arg){
         else{
             printf(" <-- Ez dago PCBrik ready ilaran.");
         }
+        pthread_mutex_unlock(&mutexS);
     }
-    pthread_mutex_unlock(&mutexS);
-
     return NULL;
 }
 

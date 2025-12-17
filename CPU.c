@@ -29,6 +29,7 @@ void cpuHasieratu(int ckop, int hkop){
         cpu.coreak[i].hariak = (haria*)malloc(hkop * sizeof(haria));
         for(j = 0; j < hkop; j++){
             cpu.coreak[i].hariak[j].libre=1;
+            cpu.coreak[i].hariak[j].coreID=i;
             int indizea = i * hkop + j;
             if (indizea < hariTotalak) {
                 cpu.hariakIlara[indizea] = cpu.coreak[i].hariak[j];
@@ -49,13 +50,15 @@ void cpuHasieratu(int ckop, int hkop){
 
 void Dispatcher(PCB *jasotakopcb){
     jasotakopcb->running=1;
-    haria *esleitua = lortuHariAskea();
+    haria *esleitua = lortuHariAskea(jasotakopcb->preferentziaCPU);
     if (esleitua==NULL){
         printf("<-- CPU osoa okupatuta dago ezin da haririk sartu CPUan. ");
         prozesuaPush(jasotakopcb);
+        return;
     }
     else{
         jasotakopcb->running=1;
+        jasotakopcb->preferentziaCPU=esleitua->coreID;
         if(esleitua->libre==0){
             printf(" <-- %d prozesua kanporatu da eta %d prozesua hasieratu da.", esleitua->pcb->pid, jasotakopcb->pid);
             esleitua->pcb->running=0;
@@ -70,7 +73,16 @@ void Dispatcher(PCB *jasotakopcb){
     }
 }
 
-haria* lortuHariAskea(){
+haria* lortuHariAskea(int preferentzia){
+    if(preferentzia!=-1){
+        for(int i=0; i<cpu.harikopCoreko; i++){
+            //Ez bada egoten libre preferentzia duen corean haririk, preferentzia ez da kontutan hartuko
+            if(cpu.coreak[preferentzia].hariak[i].libre == 1){
+                //Ez da azken haria aldatzen
+                return &cpu.coreak[preferentzia].hariak[i];
+            }
+        }
+    }
     for(int i = 0; i < hariTotalak; i++){
         if(cpu.hariakIlara[i].libre == 1){
             azkenHaria=i;
@@ -84,7 +96,7 @@ haria* lortuHariAskea(){
         azkenHaria=0;
     }
     int buelta=0;
-    while(buelta<hariTotalak && cpu.hariakIlara[azkenHaria].pcb->blokeatuta==1){
+    while(buelta<hariTotalak && cpu.hariakIlara[azkenHaria].pcb != NULL && cpu.hariakIlara[azkenHaria].pcb->blokeatuta==1){
         if(azkenHaria<hariTotalak-1){
             azkenHaria++;
         }

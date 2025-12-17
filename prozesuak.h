@@ -4,12 +4,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-
 typedef struct{
     int pid;
     int running;
     int garrantzia;
     int blokeatuta;
+    int preferentziaCPU;
     //...
 }PCB;
 

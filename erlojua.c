@@ -19,7 +19,6 @@ void *erlojua(void *arg){
         Done = 0;
         pthread_cond_broadcast(&cond2);
         pthread_mutex_unlock(&mutex);
-
     }
     return NULL;
 }
@@ -40,11 +39,8 @@ void *temporizadorea(void *arg){
                 args->id);
             //Ilarako pcb danen garrantzia igo
             if(args->id == 1){
-                blokeatuLehena();
-            }
-            // Hari guztien garrantzia = 0;
-            if(args->id == 2){
-                askatuBlokeoDenak();
+                printf("<-- RULETA!!!");
+                ruleta();
             }
             // Scheduler-ari seinalea bidali
             if(args->id == 0){
