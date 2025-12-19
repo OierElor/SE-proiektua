@@ -4,13 +4,19 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+type struct{
+    void* pgb;
+    void* code;
+    void* data;
+}mmStruct;
+
 typedef struct{
     int pid;
     int running;
     int garrantzia;
     int blokeatuta;
     int preferentziaCPU;
-    //...
+    mmStruct mm;
 }PCB;
 
 typedef struct prozesu_ilara_zatia prozesu_ilara_zatia;
