@@ -37,6 +37,7 @@ typedef struct{
     uint32_t PTBR;
     uint32_t IR;
     uint32_t PC;
+    uint32_t regs[16];
 }haria;
 
 typedef struct{

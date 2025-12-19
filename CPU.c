@@ -30,6 +30,14 @@ void cpuHasieratu(int ckop, int hkop){
         for(j = 0; j < hkop; j++){
             cpu.coreak[i].hariak[j].libre=1;
             cpu.coreak[i].hariak[j].coreID=i;
+            cpu.coreak[i].hariak[j].pcb = NULL;
+
+            cpu.coreak[i].hariak[j].PC = 0;
+            cpu.coreak[i].hariak[j].IR = 0;
+            cpu.coreak[i].hariak[j].PTBR = 0;
+            for(int r = 0; r < 16; r++) {
+                cpu.coreak[i].hariak[j].regs[r] = 0;
+            }
             int indizea = i * hkop + j;
             if (indizea < hariTotalak) {
                 cpu.hariakIlara[indizea] = &cpu.coreak[i].hariak[j];
