@@ -60,10 +60,6 @@ extern CPU cpu;
 extern int hariTotalak;
 extern int azkenHaria;
 
-void Dispatcher(PCB *pcb);
-
-haria* lortuHariAskea(int preferentzia);
-
 //MMU eta TLB funtzioak
 void mmuHasieratu(haria *h);
 void tlbHasieratu(haria *h);

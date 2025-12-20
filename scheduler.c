@@ -3,7 +3,7 @@
 #include <pthread.h>
 #include "scheduler.h"
 #include "prozesuak.h"
-#include "CPU.h"
+#include "dispatcher.h"
 
 void *scheduler(void *arg){
     printf("Scheduler-a exekutatzen hasi da\n");

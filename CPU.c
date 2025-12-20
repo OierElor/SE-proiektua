@@ -39,13 +39,7 @@ void cpuHasieratu(int ckop, int hkop){
             for(int r = 0; r < 16; r++) {
                 cpu.coreak[i].hariak[j].regs[r] = 0;
             }
-            //MMUa hasieratu
-            cpu.coreak[i].hariak[j].mmu.gaituta = 1;
-            cpu.coreak[i].hariak[j].mmu.itzulpenak = 0;
-            cpu.coreak[i].hariak[j].mmu.page_faults = 0;
-
-            //TLBa hasieratu
-            tlbHasieratu(&cpu.coreak[i].hariak[j]);
+            mmuHasieratu(&cpu.coreak[i].hariak[j]);
 
             int indizea = i * hkop + j;
             if (indizea < hariTotalak) {
@@ -65,70 +59,51 @@ void cpuHasieratu(int ckop, int hkop){
     }
 }
 
-void Dispatcher(PCB *jasotakopcb){
-    jasotakopcb->running=1;
-    haria *esleitua = lortuHariAskea(jasotakopcb->preferentziaCPU);
-    if (esleitua==NULL){
-        printf("<-- CPU osoa okupatuta dago ezin da haririk sartu CPUan. ");
-        prozesuaPush(jasotakopcb);
-        return;
-    }
-    else{
-        jasotakopcb->running=1;
-        jasotakopcb->preferentziaCPU=esleitua->coreID;
-        esleitua->PTBR = jasotakopcb->mm.pgb;
-        esleitua->PC = jasotakopcb->mm.code;
-
-        if(esleitua->libre==0){
-            printf(" <-- %d prozesua kanporatu da eta %d prozesua hasieratu da.", esleitua->pcb->pid, jasotakopcb->pid);
-            esleitua->pcb->running=0;
-            prozesuaPush((esleitua->pcb));
-        }
-        else{
-            printf(" <-- %d prozesua hasieratu da.", jasotakopcb->pid);
-        }
-        esleitua->pcb = jasotakopcb;
-        esleitua->libre = 0;
-        tlbGarbitu(&esleitua->mmu.tlb);
-
-        printf(" <-- Corea:%d; Haria:%d (PTBR: 0x%X)\n", azkenHaria/cpu.harikopCoreko, azkenHaria%cpu.harikopCoreko, esleitua->PTBR);
-    }
+//MMU eta TLB funtzioak
+void mmuHasieratu(haria *h) {
+    h->mmu.gaituta = 1;
+    h->mmu.itzulpenak = 0;
+    h->mmu.page_faults = 0;
+    tlbHasieratu(h);
 }
 
-haria* lortuHariAskea(int preferentzia){
-    if(preferentzia!=-1){
-        for(int i=0; i<cpu.harikopCoreko; i++){
-            //Ez bada egoten libre preferentzia duen corean haririk, preferentzia ez da kontutan hartuko
-            if(cpu.coreak[preferentzia].hariak[i].libre == 1){
-                //Ez da azken haria aldatzen
-                return &cpu.coreak[preferentzia].hariak[i];
+void tlbHasieratu(haria *h) {
+    for (int i = 0; i < TLB_TAMAINA; i++) {
+        h->mmu.tlb.sarrerak[i].orri_birtuala = 0;
+        h->mmu.tlb.sarrerak[i].frame_fisikoa = 0;
+        h->mmu.tlb.sarrerak[i].baliozkoa = 0;
+        h->mmu.tlb.sarrerak[i].aldatu = 0;
+    }
+    h->mmu.tlb.hits = 0;
+    h->mmu.tlb.misses = 0;
+    h->mmu.tlb.next_replace = 0;
+}
+
+uint32_t tlbBilatu(TLB *tlb, uint32_t orri_birtuala) {
+    for (int i = 0; i < TLB_TAMAINA; i++) {
+        if (tlb->sarrerak[i].baliozkoa &&
+            tlb->sarrerak[i].orri_birtuala == orri_birtuala) {
+            tlb->hits++;
+        return tlb->sarrerak[i].frame_fisikoa;
             }
-        }
     }
-    for(int i = 0; i < hariTotalak; i++){
-        if(cpu.hariakIlara[i]->libre == 1){
-            azkenHaria=i;
-            return cpu.hariakIlara[i];
-        }
+    tlb->misses++;
+    return 0xFFFFFFFF;
+}
+
+void tlbSartu(TLB *tlb, uint32_t orri_birtuala, uint32_t frame_fisikoa) {
+    int idx = tlb->next_replace;
+    tlb->sarrerak[idx].orri_birtuala = orri_birtuala;
+    tlb->sarrerak[idx].frame_fisikoa = frame_fisikoa;
+    tlb->sarrerak[idx].baliozkoa = 1;
+    tlb->sarrerak[idx].aldatu = 0;
+
+    tlb->next_replace = (tlb->next_replace + 1) % TLB_TAMAINA;
+}
+
+void tlbGarbitu(TLB *tlb) {
+    for (int i = 0; i < TLB_TAMAINA; i++) {
+        tlb->sarrerak[i].baliozkoa = 0;
     }
-    if(azkenHaria<hariTotalak-1){
-        azkenHaria++;
-    }
-    else{
-        azkenHaria=0;
-    }
-    int buelta=0;
-    while(buelta<hariTotalak && cpu.hariakIlara[azkenHaria]->pcb != NULL && cpu.hariakIlara[azkenHaria]->pcb->blokeatuta==1){
-        if(azkenHaria<hariTotalak-1){
-            azkenHaria++;
-        }
-        else{
-            azkenHaria=0;
-        }
-        buelta++;
-    }
-    if(buelta==hariTotalak){
-        return NULL;
-    }
-    return cpu.hariakIlara[azkenHaria];
+    tlb->next_replace = 0;
 }
