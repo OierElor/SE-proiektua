@@ -8,8 +8,8 @@
 #include "prozesuak.h"
 #include "scheduler.h"
 #include "gertaerak.h"
-
-
+#include "memoria.h"
+#include "loader.h"
 
 int TempCont;
 int Done;
@@ -21,10 +21,9 @@ pthread_cond_t condS = PTHREAD_COND_INITIALIZER;
 //Main Funtzioa
 
 int main(){
-    // Zenbaki ausazko sortzailea hasieratu uneko denborarekin
-    srand(time(NULL));
-    //Hasieran sortzen diren prozesu kopurua
-    int prosezuKop = 10;
+    srand(time(NULL)); //Zenbaki ausazko sortzailea hasieratu uneko denborarekin
+    memoriaHasieratu();
+    int prosezuKop = 10; //Hasieran sortzen diren prozesu kopurua
     //Prosezuen ilara hasieratzeko
     ready.lehena = NULL;
     ready.azkena = NULL;
@@ -37,10 +36,6 @@ int main(){
     printf("Hari kopurua: %d \n", cpu.harikopCoreko);
     printf("Core kopurua: %d \n", cpu.corekop);
     Done = 0;
-    //Prozesuak sortu auzasko garrantzi batekin
-    for(int i=0; i<prosezuKop; i++){
-        prozesuaSortuGertaera();
-    }
 
     //Temporizadore kantitatea ezaretzeko
     TempCont = 2;
@@ -64,6 +59,8 @@ int main(){
     }
 
     pthread_exit(NULL);
+
+    memoriaLibratu();
 
     free(threads);
     free(args);
