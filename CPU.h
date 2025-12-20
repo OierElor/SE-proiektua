@@ -34,7 +34,7 @@ typedef struct{
     PCB *pcb;
 
     MMU mmu;
-    uint32_t PTBR;
+    uint32_t PTBR; //Helbide fisikoa
     uint32_t IR;
     uint32_t PC;
     uint32_t regs[16];

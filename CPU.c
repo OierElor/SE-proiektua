@@ -67,6 +67,11 @@ void Dispatcher(PCB *jasotakopcb){
     else{
         jasotakopcb->running=1;
         jasotakopcb->preferentziaCPU=esleitua->coreID;
+        esleitua->PTBR = jasotakopcb->mm.pgb;
+        esleitua->PC = jasotakopcb->mm.code;
+
+        printf(" <-- %d prozesua hasieratu da (PTBR: 0x%X)\n",
+               jasotakopcb->pid, esleitua->PTBR);
         if(esleitua->libre==0){
             printf(" <-- %d prozesua kanporatu da eta %d prozesua hasieratu da.", esleitua->pcb->pid, jasotakopcb->pid);
             esleitua->pcb->running=0;

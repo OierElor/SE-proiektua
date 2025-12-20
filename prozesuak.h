@@ -5,9 +5,9 @@
 #include <stdlib.h>
 
 type struct{
-    void* pgb;
-    void* code;
-    void* data;
+    uint32_t pgb;      // Helbide fisikoa
+    uint32_t code;     // Helbide birtuala
+    uint32_t data;     // Helbide birtuala
 }mmStruct;
 
 typedef struct{
