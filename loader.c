@@ -42,18 +42,18 @@ PCB* programaKargatu(const char* fitxategia, int garrantzia) {
     pcb->preferentziaCPU = -1;
     pcb->garrantzia = garrantzia;
 
-    fscanf(f, "%X", &pcb->mm.code_start);
-    fscanf(f, "%X", &pcb->mm.data_start);
+    fscanf(f, "%X", &pcb->mm.code);
+    fscanf(f, "%X", &pcb->mm.data);
 
     printf("\n=== PROGRAMA KARGATZEN: %s (PID: %d) ===\n", fitxategia, pcb->pid);
-    printf("Code start: 0x%X\n", pcb->mm.code_start);
-    printf("Data start: 0x%X\n", pcb->mm.data_start);
+    printf("Code start: 0x%X\n", pcb->mm.code);
+    printf("Data start: 0x%X\n", pcb->mm.data);
 
     orriTaulaSortu(pcb);
 
     char lerro[256];
     uint32_t code_instructions = 0;
-    uint32_t code_fisikoa = (uint32_t)(uintptr_t)userMemoriaEskatu(ORRI_TAMAINA * 10); // 10 orri koderentzat
+    uint32_t code_fisikoa = (uint32_t)(uintptr_t)userMemoriaEskatu(ORRI_TAMAINA * 10);
 
     printf("\n--- .TEXT SEGMENTUA ---\n");
     while (fgets(lerro, sizeof(lerro), f)) {
@@ -61,7 +61,7 @@ PCB* programaKargatu(const char* fitxategia, int garrantzia) {
         if (sscanf(lerro, "%X", &agindua) == 1) {
             memoriaIdatzi(code_fisikoa + code_instructions * HITZ_TAMAINA, agindua);
             printf("  [0x%06X] -> 0x%08X (fis: 0x%X)\n",
-                   pcb->mm.code_start + code_instructions * HITZ_TAMAINA,
+                   pcb->mm.code + code_instructions * HITZ_TAMAINA,
                    agindua,
                    code_fisikoa + code_instructions * HITZ_TAMAINA);
             code_instructions++;
@@ -71,10 +71,9 @@ PCB* programaKargatu(const char* fitxategia, int garrantzia) {
             }
         }
     }
-    pcb->mm.code_size = code_instructions * HITZ_TAMAINA;
 
     uint32_t data_count = 0;
-    uint32_t data_fisikoa = (uint32_t)(uintptr_t)userMemoriaEskatu(ORRI_TAMAINA * 5); // 5 orri datuentzat
+    uint32_t data_fisikoa = (uint32_t)(uintptr_t)userMemoriaEskatu(ORRI_TAMAINA * 5);
 
     printf("\n--- .DATA SEGMENTUA ---\n");
     while (fgets(lerro, sizeof(lerro), f)) {
@@ -82,22 +81,21 @@ PCB* programaKargatu(const char* fitxategia, int garrantzia) {
         if (sscanf(lerro, "%X", &datua) == 1) {
             memoriaIdatzi(data_fisikoa + data_count * HITZ_TAMAINA, datua);
             printf("  [0x%06X] -> 0x%08X (fis: 0x%X)\n",
-                   pcb->mm.data_start + data_count * HITZ_TAMAINA,
+                   pcb->mm.data + data_count * HITZ_TAMAINA,
                    datua,
                    data_fisikoa + data_count * HITZ_TAMAINA);
             data_count++;
         }
     }
-    pcb->mm.data_size = data_count * HITZ_TAMAINA;
 
     fclose(f);
 
-    uint32_t code_orri = pcb->mm.code_start / ORRI_TAMAINA;
+    uint32_t code_orri = pcb->mm.code / ORRI_TAMAINA;
     OrriTaulaSarrera code_sarrera = {code_fisikoa, 1, 0, 0};
     memcpy(&memoria.memoria[pcb->mm.pgb + code_orri * sizeof(OrriTaulaSarrera)],
            &code_sarrera, sizeof(OrriTaulaSarrera));
 
-    uint32_t data_orri = pcb->mm.data_start / ORRI_TAMAINA;
+    uint32_t data_orri = pcb->mm.data / ORRI_TAMAINA;
     OrriTaulaSarrera data_sarrera = {data_fisikoa, 1, 0, 0};
     memcpy(&memoria.memoria[pcb->mm.pgb + data_orri * sizeof(OrriTaulaSarrera)],
            &data_sarrera, sizeof(OrriTaulaSarrera));
@@ -114,15 +112,16 @@ void debugMemoria(PCB* pcb) {
     printf("\n=== MEMORIA DUMP (PID: %d) ===\n", pcb->pid);
     printf("--- .DATA SEGMENTUA ---\n");
 
-    uint32_t data_orri = pcb->mm.data_start / ORRI_TAMAINA;
+    uint32_t data_orri = pcb->mm.data / ORRI_TAMAINA;
     OrriTaulaSarrera sarrera;
     memcpy(&sarrera, &memoria.memoria[pcb->mm.pgb + data_orri * sizeof(OrriTaulaSarrera)],
            sizeof(OrriTaulaSarrera));
 
-    for (uint32_t i = 0; i < pcb->mm.data_size; i += HITZ_TAMAINA) {
+    for (uint32_t i = 0; i < ORRI_TAMAINA; i += HITZ_TAMAINA) {
         uint32_t balioa = memoriaIrakurri(sarrera.fisikoa + i);
-        printf("  [0x%06X] = 0x%08X (%d)\n",
-               pcb->mm.data_start + i, balioa, (int32_t)balioa);
+        if (balioa != 0) {
+            printf("  [0x%06X] = 0x%08X (%d)\n", pcb->mm.data + i, balioa, (int32_t)balioa);
+        }
     }
     printf("=========================\n\n");
 }

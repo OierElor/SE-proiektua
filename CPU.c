@@ -32,12 +32,21 @@ void cpuHasieratu(int ckop, int hkop){
             cpu.coreak[i].hariak[j].coreID=i;
             cpu.coreak[i].hariak[j].pcb = NULL;
 
+            //Erregistroak hasieratu
             cpu.coreak[i].hariak[j].PC = 0;
             cpu.coreak[i].hariak[j].IR = 0;
             cpu.coreak[i].hariak[j].PTBR = 0;
             for(int r = 0; r < 16; r++) {
                 cpu.coreak[i].hariak[j].regs[r] = 0;
             }
+            //MMUa hasieratu
+            cpu.coreak[i].hariak[j].mmu.gaituta = 1;
+            cpu.coreak[i].hariak[j].mmu.itzulpenak = 0;
+            cpu.coreak[i].hariak[j].mmu.page_faults = 0;
+
+            //TLBa hasieratu
+            tlbHasieratu(&cpu.coreak[i].hariak[j]);
+
             int indizea = i * hkop + j;
             if (indizea < hariTotalak) {
                 cpu.hariakIlara[indizea] = &cpu.coreak[i].hariak[j];
@@ -70,8 +79,6 @@ void Dispatcher(PCB *jasotakopcb){
         esleitua->PTBR = jasotakopcb->mm.pgb;
         esleitua->PC = jasotakopcb->mm.code;
 
-        printf(" <-- %d prozesua hasieratu da (PTBR: 0x%X)\n",
-               jasotakopcb->pid, esleitua->PTBR);
         if(esleitua->libre==0){
             printf(" <-- %d prozesua kanporatu da eta %d prozesua hasieratu da.", esleitua->pcb->pid, jasotakopcb->pid);
             esleitua->pcb->running=0;
@@ -82,7 +89,9 @@ void Dispatcher(PCB *jasotakopcb){
         }
         esleitua->pcb = jasotakopcb;
         esleitua->libre = 0;
-        printf(" <-- Corea:%d; Haria:%d", azkenHaria/cpu.harikopCoreko, azkenHaria%cpu.harikopCoreko);
+        tlbGarbitu(&esleitua->mmu.tlb);
+
+        printf(" <-- Corea:%d; Haria:%d (PTBR: 0x%X)\n", azkenHaria/cpu.harikopCoreko, azkenHaria%cpu.harikopCoreko, esleitua->PTBR);
     }
 }
 

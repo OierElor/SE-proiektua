@@ -3,8 +3,9 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdint.h>
 
-type struct{
+typedef struct{
     uint32_t pgb;      // Helbide fisikoa
     uint32_t code;     // Helbide birtuala
     uint32_t data;     // Helbide birtuala

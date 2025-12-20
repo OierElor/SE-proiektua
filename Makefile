@@ -16,4 +16,4 @@ $(TARGET): $(OBJS)
 # Garbiketa
 .PHONY: clean
 clean:
-	rm -f $(OBJS) $(TARGET)
+	rm -f $(TARGET)

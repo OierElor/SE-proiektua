@@ -2,6 +2,7 @@
 #define CPU_H
 
 #include <stdio.h>
+#include <stdint.h>
 #include <stdlib.h>
 #include <pthread.h>
 #include "prozesuak.h"
@@ -12,7 +13,7 @@ typedef struct {
     uint32_t orri_birtuala;
     uint32_t frame_fisikoa;
     uint8_t baliozkoa;
-    uint8_t dirty;
+    uint8_t aldatu;
 } TLBSarrera;
 
 typedef struct {
@@ -26,6 +27,7 @@ typedef struct {
     uint8_t gaituta;
     uint32_t itzulpenak;
     uint32_t page_faults;
+    TLB tlb;
 } MMU;
 
 typedef struct{
@@ -61,5 +63,12 @@ extern int azkenHaria;
 void Dispatcher(PCB *pcb);
 
 haria* lortuHariAskea(int preferentzia);
+
+//MMU eta TLB funtzioak
+void mmuHasieratu(haria *h);
+void tlbHasieratu(haria *h);
+uint32_t tlbBilatu(TLB *tlb, uint32_t orri_birtuala);
+void tlbSartu(TLB *tlb, uint32_t orri_birtuala, uint32_t frame_fisikoa);
+void tlbGarbitu(TLB *tlb);
 
 #endif
