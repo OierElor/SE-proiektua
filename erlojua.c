@@ -38,10 +38,10 @@ void *temporizadorea(void *arg){
             printf(" <--Temp %d",
                 args->id);
             //Ilarako pcb danen garrantzia igo
-            if(args->id == 1){
+            /*if(args->id == 1){
                 printf("<-- RULETA!!!");
                 ruleta();
-            }
+            }*/
             // Scheduler-ari seinalea bidali
             if(args->id == 0){
                 schedulerdeitu();
