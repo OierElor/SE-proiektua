@@ -15,8 +15,8 @@ typedef struct {
 extern MemoriaFisikoa memoria;
 
 void memoriaHasieratu();
-void* kernelMemoriaEskatu(uint32_t tamaina);
-void* userMemoriaEskatu(uint32_t tamaina);
+uint32_t kernelMemoriaEskatu(uint32_t tamaina);
+uint32_t userMemoriaEskatu(uint32_t tamaina);
 void memoriaIdatzi(uint32_t helbidea, uint32_t balioa);
 uint32_t memoriaIrakurri(uint32_t helbidea);
 void memoriaLibratu();

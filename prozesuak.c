@@ -9,11 +9,6 @@ prozesu_ilara ready;
 PCB* prozesuakSortu(int garrantzi){
     //PCB egitura dinamikoki alokatu
     PCB *pcb_berria = (PCB*)malloc(sizeof(PCB));
-    if (pcb_berria == NULL) {
-        perror("Errorea malloc egitean PCB-rentzat");
-        free(nodoa); // Nodoa ere askatu
-        exit(EXIT_FAILURE);
-    }
 
     pcb_berria->running = 0;
     pcb_berria->blokeatuta = 0;
@@ -21,7 +16,7 @@ PCB* prozesuakSortu(int garrantzi){
     pcb_berria->garrantzia = garrantzi;
     pcb_berria->pid = last_ID;
     last_ID++;
-    return &pcb_berria;
+    return pcb_berria;
 }
 
 //Prozesu hilaran dagoen leheneko pcb lortzeko

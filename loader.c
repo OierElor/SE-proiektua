@@ -22,7 +22,7 @@ void programaKargatu(const char* fitxategia, int garrantzia) {
     FILE* f = fopen(fitxategia, "r");
     if (f == NULL) {
         printf("Errorea: Ezin da %s fitxategia ireki\n", fitxategia);
-        return NULL;
+        return;
     }
 
     PCB* pcb = prozesuakSortu(garrantzia);
@@ -31,47 +31,40 @@ void programaKargatu(const char* fitxategia, int garrantzia) {
     fscanf(f, "%X", &pcb->mm.data);
 
     printf("\n=== PROGRAMA KARGATZEN: %s (PID: %d) ===\n", fitxategia, pcb->pid);
-    printf("Code start: 0x%X\n", pcb->mm.code);
-    printf("Data start: 0x%X\n", pcb->mm.data);
+
+    char lerro[256];
+    uint32_t code_fisikoa = userMemoriaEskatu(ORRI_TAMAINA);
+    uint32_t data_fisikoa = userMemoriaEskatu(ORRI_TAMAINA);
+    uint32_t code_instructions = 0;
+    uint32_t data_count = 0;
 
     orriTaulaSortu(pcb);
 
-    char lerro[256];
-    uint32_t code_instructions = 0;
-    uint32_t code_fisikoa = userMemoriaEskatu(ORRI_TAMAINA * 10);
-
-    printf("\n--- .TEXT SEGMENTUA ---\n");
     while (fgets(lerro, sizeof(lerro), f)) {
-        uint32_t agindua;
-        if (sscanf(lerro, "%X", &agindua) == 1) {
-            memoriaIdatzi(code_fisikoa + code_instructions * HITZ_TAMAINA, agindua);
-            printf("  [0x%06X] -> 0x%08X (fis: 0x%X)\n",
-                   pcb->mm.code + code_instructions * HITZ_TAMAINA,
-                   agindua,
-                   code_fisikoa + code_instructions * HITZ_TAMAINA);
-            code_instructions++;
+        //Irakurri goiburuak
+        if (strncmp(lerro, ".text", 5) == 0) {
+            sscanf(lerro + 6, "%X", &pcb->mm.code);
+            continue;
+        }
+        if (strncmp(lerro, ".data", 5) == 0) {
+            sscanf(lerro + 6, "%X", &pcb->mm.data);
+            continue;
+        }
 
-            if ((agindua & 0xF0000000) == 0x40000000) {
-                break;
+        //Irakurri balio hexadezimalak (aginduak edo datuak)
+        uint32_t balioa;
+        if (sscanf(lerro, "%X", &balioa) == 1) {
+            if (data_count == 0 && (balioa & 0xF0000000) != 0xF0000000) {
+                memoriaIdatzi(code_fisikoa + code_instructions * HITZ_TAMAINA, balioa);
+                code_instructions++;
+            } else {
+                memoriaIdatzi(data_fisikoa + data_count * HITZ_TAMAINA, balioa);
+                data_count++;
             }
         }
     }
-
-    uint32_t data_count = 0;
-    uint32_t data_fisikoa = userMemoriaEskatu(ORRI_TAMAINA * 5);
-
-    printf("\n--- .DATA SEGMENTUA ---\n");
-    while (fgets(lerro, sizeof(lerro), f)) {
-        uint32_t datua;
-        if (sscanf(lerro, "%X", &datua) == 1) {
-            memoriaIdatzi(data_fisikoa + data_count * HITZ_TAMAINA, datua);
-            printf("  [0x%06X] -> 0x%08X (fis: 0x%X)\n",
-                   pcb->mm.data + data_count * HITZ_TAMAINA,
-                   datua,
-                   data_fisikoa + data_count * HITZ_TAMAINA);
-            data_count++;
-        }
-    }
+    printf("Code start: 0x%X\n", pcb->mm.code);
+    printf("Data start: 0x%X\n", pcb->mm.data);
 
     fclose(f);
 
@@ -85,10 +78,9 @@ void programaKargatu(const char* fitxategia, int garrantzia) {
     memcpy(&memoria.memoria[pcb->mm.pgb + data_orri * sizeof(OrriTaulaSarrera)],
            &data_sarrera, sizeof(OrriTaulaSarrera));
 
+    prozesuaPush(pcb);
     printf("\nPrograma kargatuta: %d agindu, %d datu\n", code_instructions, data_count);
     printf("===================================\n\n");
-
-    return pcb;
 }
 
 void debugMemoria(PCB* pcb) {

@@ -30,8 +30,8 @@ int main(){
     ready.lehena = NULL;
     ready.azkena = NULL;
     //cpu-hasieratu
-    int harikop = 2;
-    int corekop = 2;
+    int harikop = 1;
+    int corekop = 1;
     azkenHaria=0;
     cpuHasieratu(corekop, harikop);
     printf("=== CPU KONFIGURAZIOA ===\n");
@@ -49,15 +49,10 @@ int main(){
         sprintf(fitxategia, "prometheus/prog%03d.elf", i);
         int garrantzia = (rand() % 10) + 1;  //Ausazko garrantzia
 
-        PCB* prog = programaKargatu(fitxategia, garrantzia);
-        if(prog != NULL) {
-            kargatuak++;
-        } else {
-            printf("Ezin izan da %s kargatu\n", fitxategia);
-        }
+        programaKargatu(fitxategia, garrantzia);
     }
 
-    printf("Kargatutako programak: %d / %d\n", kargatuak, programaKop);
+    printf("Programa denak kargatuta\n");
     printf("===========================\n\n");
 
     //Temporizadore kantitatea ezaretzeko

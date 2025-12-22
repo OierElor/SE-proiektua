@@ -38,7 +38,7 @@ extern prozesu_ilara ready;
 
 extern int last_ID;
 
-void prozesuakSortu(int garrantzi);
+PCB* prozesuakSortu(int garrantzi);
 
 PCB* prozesuaPoll();
 

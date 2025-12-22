@@ -11,6 +11,6 @@ typedef struct {
     uint8_t erreferentziatua;
 } OrriTaulaSarrera;
 
-PCB* programaKargatu(const char* fitxategia, int garrantzia);
+void programaKargatu(const char* fitxategia, int garrantzia);
 void orriTaulaSortu(PCB* pcb);
 void debugMemoria(PCB* pcb);

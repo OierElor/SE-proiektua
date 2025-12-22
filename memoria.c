@@ -25,17 +25,17 @@ void memoriaHasieratu() {
 uint32_t kernelMemoriaEskatu(uint32_t tamaina) {
     if (memoria.hurrengoKernelMemoriaAskea + tamaina > memoria.kernelAmaieraHelbidea) {
         printf("Errorea: Ez dago nahikoa kernel memoria\n");
-        return NULL;
+        return 0;
     }
     uint32_t helbidea = memoria.hurrengoKernelMemoriaAskea;
     memoria.hurrengoKernelMemoriaAskea += tamaina;
     return helbidea;
 }
-hurrengoUserMemoriaAskea
+
 uint32_t userMemoriaEskatu(uint32_t tamaina) {
     if (memoria.hurrengoUserMemoriaAskea + tamaina > memoria.tamaina) {
         printf("Errorea: Ez dago nahikoa erabiltzaile memoria\n");
-        return NULL;
+        return 0;
     }
     uint32_t helbidea = memoria.hurrengoUserMemoriaAskea;
     memoria.hurrengoUserMemoriaAskea += tamaina;
