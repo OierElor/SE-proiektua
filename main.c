@@ -22,7 +22,10 @@ pthread_cond_t condS = PTHREAD_COND_INITIALIZER;
 
 int main(){
     srand(time(NULL)); //Zenbaki ausazko sortzailea hasieratu uneko denborarekin
+
+    printf("====== MEMORIA KONFIGURAZIOA ======\n");
     memoriaHasieratu();
+    printf("===================================\n\n");
     //Prosezuen ilara hasieratzeko
     ready.lehena = NULL;
     ready.azkena = NULL;
@@ -31,10 +34,10 @@ int main(){
     int corekop = 2;
     azkenHaria=0;
     cpuHasieratu(corekop, harikop);
-    printf("\n=== SISTEMAREN KONFIGURAZIOA ===\n");
+    printf("=== CPU KONFIGURAZIOA ===\n");
     printf("Hari kopurua: %d \n", cpu.harikopCoreko);
     printf("Core kopurua: %d \n", cpu.corekop);
-    printf("================================\n\n");
+    printf("=========================\n\n");
     Done = 0;
 
     printf("=== PROGRAMAK KARGATZEN ===\n");
@@ -48,7 +51,6 @@ int main(){
 
         PCB* prog = programaKargatu(fitxategia, garrantzia);
         if(prog != NULL) {
-            prozesuaPush(prog);
             kargatuak++;
         } else {
             printf("Ezin izan da %s kargatu\n", fitxategia);

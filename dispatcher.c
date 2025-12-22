@@ -15,18 +15,22 @@ void Dispatcher(PCB *jasotakopcb){
     else{
         jasotakopcb->running=1;
         jasotakopcb->preferentziaCPU=esleitua->coreID;
-        esleitua->PTBR = jasotakopcb->mm.pgb;
-        esleitua->PC = jasotakopcb->mm.code;
 
         if(esleitua->libre==0){
             printf(" <-- %d prozesua kanporatu da eta %d prozesua hasieratu da.", esleitua->pcb->pid, jasotakopcb->pid);
-            esleitua->pcb->running=0;
-            prozesuaPush((esleitua->pcb));
+            esleitua->pcb->gordePC = esleitua->PC;
+            for(int i=0; i<16; i++) {
+                esleitua->pcb->gordeErregistroak[i] = esleitua->regs[i];
+            }
+            esleitua->pcb->running = 0;
+            prozesuaPush(esleitua->pcb);
         }
         else{
             printf(" <-- %d prozesua hasieratu da.", jasotakopcb->pid);
         }
         esleitua->pcb = jasotakopcb;
+        esleitua->PTBR = jasotakopcb->mm.pgb;
+        esleitua->PC = jasotakopcb->mm.code;
         esleitua->libre = 0;
         tlbGarbitu(&esleitua->mmu.tlb);
 

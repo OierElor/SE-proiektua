@@ -17,6 +17,8 @@ typedef struct{
     int garrantzia;
     int blokeatuta;
     int preferentziaCPU;
+    uint32_t gordePC;
+    uint32_t gordeErregistroak[16];
     mmStruct mm;
 }PCB;
 

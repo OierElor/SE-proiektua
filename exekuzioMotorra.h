@@ -13,7 +13,7 @@
 #define OP_EXIT 0xF
 
 // Orri tamaina
-#define ORRI_BITS 8  // 2^8 = 256 bytes orri bakoitzeko
+#define ORRI_BITS 12
 
 // Funtzioak
 void exekutatuProzesua(haria *h);

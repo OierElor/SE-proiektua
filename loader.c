@@ -7,12 +7,7 @@
 
 void orriTaulaSortu(PCB* pcb) {
     uint32_t taula_tamaina = SARRERA_KOPURUA * sizeof(OrriTaulaSarrera);
-    pcb->mm.pgb = (uint32_t)(uintptr_t)kernelMemoriaEskatu(taula_tamaina);
-
-    if (pcb->mm.pgb == 0) {
-        printf("Errorea: Ezin da orri-taula sortu\n");
-        exit(EXIT_FAILURE);
-    }
+    pcb->mm.pgb = kernelMemoriaEskatu(taula_tamaina);
 
     for (int i = 0; i < SARRERA_KOPURUA; i++) {
         uint32_t sarrera_helbidea = pcb->mm.pgb + i * sizeof(OrriTaulaSarrera);
@@ -23,24 +18,14 @@ void orriTaulaSortu(PCB* pcb) {
     printf("<-- Orri-taula sortuta: 0x%X\n", pcb->mm.pgb);
 }
 
-PCB* programaKargatu(const char* fitxategia, int garrantzia) {
+void programaKargatu(const char* fitxategia, int garrantzia) {
     FILE* f = fopen(fitxategia, "r");
     if (f == NULL) {
         printf("Errorea: Ezin da %s fitxategia ireki\n", fitxategia);
         return NULL;
     }
 
-    PCB* pcb = (PCB*)malloc(sizeof(PCB));
-    if (pcb == NULL) {
-        fclose(f);
-        return NULL;
-    }
-
-    pcb->pid = last_ID++;
-    pcb->running = 0;
-    pcb->blokeatuta = 0;
-    pcb->preferentziaCPU = -1;
-    pcb->garrantzia = garrantzia;
+    PCB* pcb = prozesuakSortu(garrantzia);
 
     fscanf(f, "%X", &pcb->mm.code);
     fscanf(f, "%X", &pcb->mm.data);
@@ -53,7 +38,7 @@ PCB* programaKargatu(const char* fitxategia, int garrantzia) {
 
     char lerro[256];
     uint32_t code_instructions = 0;
-    uint32_t code_fisikoa = (uint32_t)(uintptr_t)userMemoriaEskatu(ORRI_TAMAINA * 10);
+    uint32_t code_fisikoa = userMemoriaEskatu(ORRI_TAMAINA * 10);
 
     printf("\n--- .TEXT SEGMENTUA ---\n");
     while (fgets(lerro, sizeof(lerro), f)) {
@@ -73,7 +58,7 @@ PCB* programaKargatu(const char* fitxategia, int garrantzia) {
     }
 
     uint32_t data_count = 0;
-    uint32_t data_fisikoa = (uint32_t)(uintptr_t)userMemoriaEskatu(ORRI_TAMAINA * 5);
+    uint32_t data_fisikoa = userMemoriaEskatu(ORRI_TAMAINA * 5);
 
     printf("\n--- .DATA SEGMENTUA ---\n");
     while (fgets(lerro, sizeof(lerro), f)) {
