@@ -5,6 +5,9 @@
 #include "erlojua.h"
 #include "scheduler.h"
 #include "gertaerak.h"
+#include "CPU.h"
+#include "prozesuak.h"
+#include "exekuzioMotorra.h"
 
 void *erlojua(void *arg){
     printf("Erlojua exekutatzen hasi da\n");

@@ -33,8 +33,8 @@ uint32_t helbideBirtualatikFisikora(haria *h, uint32_t helbide_birtuala) {
 
     if (!sarrera.baliozkoa) {
         // PAGE FAULT! (baina gure kasuan ez da gertatuko)
-        printf("PAGE FAULT! Orria: 0x%X\n", orri_birtuala);
-        h->mmu.page_faults++;
+        printf("Orri hustea! Orria: 0x%X\n", orri_birtuala);
+        h->mmu.orriHutsigitea++;
         return 0;
     }
 
@@ -104,7 +104,7 @@ void decode_execute(haria *h) {
                 float hit_rate = (float)h->mmu.tlb.hits / h->mmu.itzulpenak * 100;
                 printf("TLB Hit Rate: %.2f%%\n", hit_rate);
             }
-            printf("Page Faults: %u\n", h->mmu.page_faults);
+            printf("Page Faults: %u\n", h->mmu.orriHutsigitea);
             printf("================================\n\n");
 
             free(h->pcb);

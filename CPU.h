@@ -26,7 +26,7 @@ typedef struct {
 typedef struct {
     uint8_t gaituta;
     uint32_t itzulpenak;
-    uint32_t orriHustea;
+    uint32_t orriHutsigitea;
     TLB tlb;
 } MMU;
 

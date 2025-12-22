@@ -63,7 +63,7 @@ void cpuHasieratu(int ckop, int hkop){
 void mmuHasieratu(haria *h) {
     h->mmu.gaituta = 1;
     h->mmu.itzulpenak = 0;
-    h->mmu.orriHustea = 0;
+    h->mmu.orriHutsigitea = 0;
     tlbHasieratu(h);
 }
 
