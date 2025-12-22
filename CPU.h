@@ -10,8 +10,8 @@
 #define TLB_TAMAINA 16
 
 typedef struct {
-    uint32_t orri_birtuala;
-    uint32_t frame_fisikoa;
+    uint32_t helbideBirtuala;
+    uint32_t helbideFisikoa;
     uint8_t baliozkoa;
     uint8_t aldatu;
 } TLBSarrera;
@@ -20,13 +20,13 @@ typedef struct {
     TLBSarrera sarrerak[TLB_TAMAINA];
     uint32_t hits;
     uint32_t misses;
-    uint32_t next_replace;
+    uint32_t HurrengoSarrera;
 } TLB;
 
 typedef struct {
     uint8_t gaituta;
     uint32_t itzulpenak;
-    uint32_t page_faults;
+    uint32_t orriHustea;
     TLB tlb;
 } MMU;
 

@@ -63,47 +63,46 @@ void cpuHasieratu(int ckop, int hkop){
 void mmuHasieratu(haria *h) {
     h->mmu.gaituta = 1;
     h->mmu.itzulpenak = 0;
-    h->mmu.page_faults = 0;
+    h->mmu.orriHustea = 0;
     tlbHasieratu(h);
 }
 
 void tlbHasieratu(haria *h) {
     for (int i = 0; i < TLB_TAMAINA; i++) {
-        h->mmu.tlb.sarrerak[i].orri_birtuala = 0;
-        h->mmu.tlb.sarrerak[i].frame_fisikoa = 0;
+        h->mmu.tlb.sarrerak[i].helbideBirtuala = 0;
+        h->mmu.tlb.sarrerak[i].helbideFisikoa = 0;
         h->mmu.tlb.sarrerak[i].baliozkoa = 0;
         h->mmu.tlb.sarrerak[i].aldatu = 0;
     }
     h->mmu.tlb.hits = 0;
     h->mmu.tlb.misses = 0;
-    h->mmu.tlb.next_replace = 0;
+    h->mmu.tlb.HurrengoSarrera = 0;
 }
 
-uint32_t tlbBilatu(TLB *tlb, uint32_t orri_birtuala) {
+uint32_t tlbBilatu(TLB *tlb, uint32_t helbideBirtuala) {
     for (int i = 0; i < TLB_TAMAINA; i++) {
-        if (tlb->sarrerak[i].baliozkoa &&
-            tlb->sarrerak[i].orri_birtuala == orri_birtuala) {
+        if (tlb->sarrerak[i].baliozkoa && tlb->sarrerak[i].helbideBirtuala == helbideBirtuala) {
             tlb->hits++;
-        return tlb->sarrerak[i].frame_fisikoa;
-            }
+            return tlb->sarrerak[i].helbideFisikoa;
+        }
     }
     tlb->misses++;
     return 0xFFFFFFFF;
 }
 
-void tlbSartu(TLB *tlb, uint32_t orri_birtuala, uint32_t frame_fisikoa) {
-    int idx = tlb->next_replace;
-    tlb->sarrerak[idx].orri_birtuala = orri_birtuala;
-    tlb->sarrerak[idx].frame_fisikoa = frame_fisikoa;
+void tlbSartu(TLB *tlb, uint32_t helbideBirtuala, uint32_t helbideFisikoa) {
+    int idx = tlb->HurrengoSarrera;
+    tlb->sarrerak[idx].helbideBirtuala = helbideBirtuala;
+    tlb->sarrerak[idx].helbideFisikoa = helbideFisikoa;
     tlb->sarrerak[idx].baliozkoa = 1;
     tlb->sarrerak[idx].aldatu = 0;
 
-    tlb->next_replace = (tlb->next_replace + 1) % TLB_TAMAINA;
+    tlb->HurrengoSarrera = (tlb->HurrengoSarrera + 1) % TLB_TAMAINA;
 }
 
 void tlbGarbitu(TLB *tlb) {
     for (int i = 0; i < TLB_TAMAINA; i++) {
         tlb->sarrerak[i].baliozkoa = 0;
     }
-    tlb->next_replace = 0;
+    tlb->HurrengoSarrera = 0;
 }

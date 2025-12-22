@@ -15,7 +15,15 @@ void *erlojua(void *arg){
         }
         sleep(1);
         printf("\nTick!");
-        //...
+
+        //Exekutatu prozesagailuko hari guztiak
+        for(int i = 0; i < hariTotalak; i++){
+            haria *h = cpu.hariakIlara[i];
+            if(h->pcb != NULL && h->pcb->running){
+                exekutatuProzesua(h);
+            }
+        }
+
         Done = 0;
         pthread_cond_broadcast(&cond2);
         pthread_mutex_unlock(&mutex);

@@ -7,9 +7,9 @@
 typedef struct {
     uint8_t *memoria;
     uint32_t tamaina;
-    uint32_t kernel_limit;
-    uint32_t next_kernel_free;
-    uint32_t next_user_free;
+    uint32_t kernelAmaieraHelbidea;
+    uint32_t hurrengoKernelMemoriaAskea;
+    uint32_t hurrengoUserMemoriaAskea;
 } MemoriaFisikoa;
 
 extern MemoriaFisikoa memoria;

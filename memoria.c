@@ -8,9 +8,9 @@ MemoriaFisikoa memoria;
 
 void memoriaHasieratu() {
     memoria.tamaina = MEMORIA_TAMAINA;
-    memoria.kernel_limit = KERNEL_MEMORIA;
-    memoria.next_kernel_free = 0;
-    memoria.next_user_free = KERNEL_MEMORIA;
+    memoria.kernelAmaieraHelbidea = KERNEL_MEMORIA;
+    memoria.hurrengoKernelMemoriaAskea = 0;
+    memoria.hurrengoUserMemoriaAskea = KERNEL_MEMORIA;
 
     memoria.memoria = (uint8_t*)calloc(MEMORIA_TAMAINA, sizeof(uint8_t));
     if (memoria.memoria == NULL) {
@@ -23,22 +23,22 @@ void memoriaHasieratu() {
 }
 
 void* kernelMemoriaEskatu(uint32_t tamaina) {
-    if (memoria.next_kernel_free + tamaina > memoria.kernel_limit) {
+    if (memoria.hurrengoKernelMemoriaAskea + tamaina > memoria.kernelAmaieraHelbidea) {
         printf("Errorea: Ez dago nahikoa kernel memoria\n");
         return NULL;
     }
-    void* helbidea = (void*)(uintptr_t)memoria.next_kernel_free;
-    memoria.next_kernel_free += tamaina;
+    void* helbidea = (void*)(uintptr_t)memoria.hurrengoKernelMemoriaAskea;
+    memoria.hurrengoKernelMemoriaAskea += tamaina;
     return helbidea;
 }
 
 void* userMemoriaEskatu(uint32_t tamaina) {
-    if (memoria.next_user_free + tamaina > memoria.tamaina) {
+    if (memoria.hurrengoUserMemoriaAskea + tamaina > memoria.tamaina) {
         printf("Errorea: Ez dago nahikoa erabiltzaile memoria\n");
         return NULL;
     }
-    void* helbidea = (void*)(uintptr_t)memoria.next_user_free;
-    memoria.next_user_free += tamaina;
+    void* helbidea = (void*)(uintptr_t)memoria.hurrengoUserMemoriaAskea;
+    memoria.hurrengoUserMemoriaAskea += tamaina;
     return helbidea;
 }
 

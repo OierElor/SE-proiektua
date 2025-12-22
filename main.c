@@ -23,7 +23,6 @@ pthread_cond_t condS = PTHREAD_COND_INITIALIZER;
 int main(){
     srand(time(NULL)); //Zenbaki ausazko sortzailea hasieratu uneko denborarekin
     memoriaHasieratu();
-    int prosezuKop = 10; //Hasieran sortzen diren prozesu kopurua
     //Prosezuen ilara hasieratzeko
     ready.lehena = NULL;
     ready.azkena = NULL;
@@ -32,10 +31,32 @@ int main(){
     int corekop = 2;
     azkenHaria=0;
     cpuHasieratu(corekop, harikop);
-    printf("Hasieran sortu diren prosezu kopurua: %d \n", prosezuKop);
+    printf("\n=== SISTEMAREN KONFIGURAZIOA ===\n");
     printf("Hari kopurua: %d \n", cpu.harikopCoreko);
     printf("Core kopurua: %d \n", cpu.corekop);
+    printf("================================\n\n");
     Done = 0;
+
+    printf("=== PROGRAMAK KARGATZEN ===\n");
+    int programaKop = 10;  // Zenbat programa kargatu nahi ditugun
+    int kargatuak = 0;
+    char fitxategia[50];
+
+    for(int i = 0; i < programaKop; i++){
+        sprintf(fitxategia, "prometheus/prog%03d.elf", i);
+        int garrantzia = (rand() % 10) + 1;  //Ausazko garrantzia
+
+        PCB* prog = programaKargatu(fitxategia, garrantzia);
+        if(prog != NULL) {
+            prozesuaPush(prog);
+            kargatuak++;
+        } else {
+            printf("Ezin izan da %s kargatu\n", fitxategia);
+        }
+    }
+
+    printf("Kargatutako programak: %d / %d\n", kargatuak, programaKop);
+    printf("===========================\n\n");
 
     //Temporizadore kantitatea ezaretzeko
     TempCont = 2;
