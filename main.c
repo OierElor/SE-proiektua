@@ -55,6 +55,8 @@ int main(){
     printf("Programa denak kargatuta\n");
     printf("===========================\n\n");
 
+    orriTaulakGuztiakPantailaratu();
+
     //Temporizadore kantitatea ezaretzeko
     TempCont = 2;
     //Erlojua hasieratu

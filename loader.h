@@ -14,3 +14,5 @@ typedef struct {
 void programaKargatu(const char* fitxategia, int garrantzia);
 void orriTaulaSortu(PCB* pcb);
 void debugMemoria(PCB* pcb);
+void orriTaulaPantailaratu(PCB* pcb);
+void orriTaulakGuztiakPantailaratu();
