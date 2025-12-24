@@ -1,7 +1,6 @@
 #include <stdint.h>
 #include "prozesuak.h"
 
-#define ORRI_TAMAINA 4096
 #define SARRERA_KOPURUA 256
 
 typedef struct {

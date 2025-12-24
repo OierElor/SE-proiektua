@@ -11,44 +11,38 @@ uint32_t helbideBirtualatikFisikora(haria *h, uint32_t helbide_birtuala) {
     }
 
     // Helbide birtuala zatitu: orria eta offset-a
-    uint32_t orri_birtuala = helbide_birtuala >> ORRI_BITS;
-    uint32_t offset = helbide_birtuala & ((1 << ORRI_BITS) - 1);
+    uint32_t orri_birtuala = helbide_birtuala / ORRI_TAMAINA;
+    uint32_t offset = helbide_birtuala % ORRI_TAMAINA;
 
     // Lehenik TLB-n bilatu
     uint32_t frame_fisikoa = tlbBilatu(&h->mmu.tlb, orri_birtuala);
 
     if (frame_fisikoa != 0xFFFFFFFF) {
         h->mmu.itzulpenak++;
-        printf("Hitzulpena eginda: %X -> %X (pid:%d)", helbide_birtuala, frame_fisikoa, h->pcb->pid);
-        return (frame_fisikoa & ~((1 << ORRI_BITS) - 1)) | offset;
+        printf("Hitzulpena eginda: %X -> %X (pid:%d)", helbide_birtuala, frame_fisikoa + offset, h->pcb->pid);
+        return frame_fisikoa + offset;
     }
 
-    // TLB MISS - Orri-taulatik eskuratu
+    // TLB barruan ez dago, ondorioz orri taula begiratu
     h->mmu.itzulpenak++;
 
-    uint32_t sarrera_helbidea = h->PTBR + orri_birtuala * sizeof(OrriTaulaSarrera);
     OrriTaulaSarrera sarrera;
-    memcpy(&sarrera, &memoria.memoria[sarrera_helbidea], sizeof(OrriTaulaSarrera));
+    memcpy(&sarrera, &memoria.memoria[h->pcb->mm.pgb + (sizeof(OrriTaulaSarrera) * orri_birtuala)], sizeof(OrriTaulaSarrera));
 
     if (!sarrera.baliozkoa) {
-        // PAGE FAULT! (baina gure kasuan ez da gertatuko)
-        printf("Orri hustea! Orria: 0x%X\n", orri_birtuala);
-        h->mmu.orriHutsigitea++;
+        printf("Arazo bat gertatu da sarrera ez da baliozkoa");
         return 0;
     }
 
-    // TLB-n sartu
     tlbSartu(&h->mmu.tlb, orri_birtuala, sarrera.fisikoa);
 
-    // Helbide fisikoa itzuli
-    return (sarrera.fisikoa & ~((1 << ORRI_BITS) - 1)) | offset;
+    return sarrera.fisikoa + offset;
 }
 
-// Fetch: Hurrengo agindua eskuratu
-void fetch(haria *h) {
+void hurrengoAgindua(haria *h) {
     uint32_t pc_fisikoa = helbideBirtualatikFisikora(h, h->PC);
     h->IR = memoriaIrakurri(pc_fisikoa);
-    h->PC += 4; // Hurrengo agindura
+    h->PC += 4;
 }
 
 // Decode & Execute: Agindua dekodifikatu eta exekutatu
@@ -56,37 +50,34 @@ void decode_execute(haria *h) {
     uint32_t opcode = (h->IR >> 28) & 0xF;
 
     switch(opcode) {
-        case OP_LD: { // 0x0RAAAAAA - Load
+        case OP_LD: {
             uint8_t reg = (h->IR >> 24) & 0xF;
             uint32_t addr = h->IR & 0xFFFFFF;
             uint32_t addr_fisikoa = helbideBirtualatikFisikora(h, addr);
             h->regs[reg] = memoriaIrakurri(addr_fisikoa);
-            printf("      LD R%d, [0x%06X] -> %d (0x%08X)\n",
-                   reg, addr, (int32_t)h->regs[reg], h->regs[reg]);
+            printf("      LD R%d, [0x%06X] -> %d (0x%08X)\n", reg, addr, (int32_t)h->regs[reg], h->regs[reg]);
             break;
         }
 
-        case OP_ST: { // 0x1RAAAAAA - Store
+        case OP_ST: {
             uint8_t reg = (h->IR >> 24) & 0xF;
             uint32_t addr = h->IR & 0xFFFFFF;
             uint32_t addr_fisikoa = helbideBirtualatikFisikora(h, addr);
             memoriaIdatzi(addr_fisikoa, h->regs[reg]);
-            printf("      ST [0x%06X], R%d <- %d (0x%08X)\n",
-                   addr, reg, (int32_t)h->regs[reg], h->regs[reg]);
+            printf("      ST [0x%06X], R%d <- %d (0x%08X)\n", addr, reg, (int32_t)h->regs[reg], h->regs[reg]);
             break;
         }
 
-        case OP_ADD: { // 0x2R1R2R30000 - Add
+        case OP_ADD: {
             uint8_t r1 = (h->IR >> 20) & 0xF;
             uint8_t r2 = (h->IR >> 16) & 0xF;
             uint8_t r3 = (h->IR >> 24) & 0xF;
             h->regs[r3] = h->regs[r1] + h->regs[r2];
-            printf("      ADD R%d, R%d, R%d -> %d (0x%08X)\n",
-                   r3, r1, r2, (int32_t)h->regs[r3], h->regs[r3]);
+            printf("      ADD R%d, R%d, R%d -> %d (0x%08X)\n", r3, r1, r2, (int32_t)h->regs[r3], h->regs[r3]);
             break;
         }
 
-        case OP_EXIT: { // 0xF0000000 - Exit
+        case OP_EXIT: {
             printf("      EXIT - Prozesua amaitu da\n");
             h->pcb->running = 0;
             h->libre = 1;
@@ -125,28 +116,12 @@ void exekutatuProzesua(haria *h) {
 
     printf("\n>>> EXEKUTATZEN: PID %d (Core: %d)\n", h->pcb->pid, h->coreID);
 
-    // Memoria dump erakutsi hasieran
-    debugMemoria(h->pcb);
+    //debugMemoria(h->pcb);
 
-    // Fetch-Decode-Execute zikloa
-    int agindu_kont = 0;
-    while (h->pcb != NULL && h->pcb->running && agindu_kont < 1000) {
-        printf("  [%d] PC=0x%06X: ", agindu_kont, h->PC);
+    printf("PC=0x%06X: ", h->PC);
 
-        fetch(h);
-        printf("IR=0x%08X ", h->IR);
+    hurrengoAgindua(h);
+    printf("IR=0x%08X ", h->IR);
 
-        decode_execute(h);
-
-        agindu_kont++;
-
-        // EXIT agindua aurkitu bada, amaitu
-        if ((h->IR >> 28) == OP_EXIT) {
-            break;
-        }
-    }
-
-    if (agindu_kont >= 1000) {
-        printf("OHARRA: Agindu gehiegi! (%d). Prozesua gelditu da.\n", agindu_kont);
-    }
+    decode_execute(h);
 }

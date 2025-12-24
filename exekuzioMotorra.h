@@ -12,13 +12,10 @@
 #define OP_ADD  0x2
 #define OP_EXIT 0xF
 
-// Orri tamaina
-#define ORRI_BITS 12
-
 // Funtzioak
 void exekutatuProzesua(haria *h);
 uint32_t helbideBirtualatikFisikora(haria *h, uint32_t helbide_birtuala);
-void fetch(haria *h);
+void hurrengoAgindua(haria *h);
 void decode_execute(haria *h);
 
 #endif

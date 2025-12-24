@@ -70,7 +70,7 @@ int main(){
     TempArgs *args = calloc(TempCont, sizeof(TempArgs));
 
     // Maiztasun desberdinak definitu
-    int maiztasunak[] = {1, 7};
+    int maiztasunak[] = {10, 30};
 
     for(int i=0; i<TempCont; i++){
         args[i].id = i;

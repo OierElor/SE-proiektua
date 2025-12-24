@@ -1,5 +1,6 @@
 #include <stdint.h>
 
+#define ORRI_TAMAINA 4096
 #define MEMORIA_TAMAINA (1 << 24)
 #define HITZ_TAMAINA 4
 #define KERNEL_MEMORIA 0x100000
