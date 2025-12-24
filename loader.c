@@ -27,6 +27,12 @@ void programaKargatu(const char* fitxategia, int garrantzia) {
 
     PCB* pcb = prozesuakSortu(garrantzia);
 
+    pcb->gordePC = 0;
+
+    for(int i=0;i<16;i++){
+        pcb->gordeErregistroak[i]=0;
+    }
+
     orriTaulaSortu(pcb);
 
     printf("\n=== PROGRAMA KARGATZEN: %s (PID: %d) ===\n", fitxategia, pcb->pid);
@@ -88,13 +94,11 @@ void debugMemoria(PCB* pcb) {
     for (uint32_t i = 0; i < ORRI_TAMAINA; i += HITZ_TAMAINA) {
         uint32_t agindua = memoriaIrakurri(code_sarrera.fisikoa + i);
 
-        // EXIT agindua aurkitu arte inprimatu
         if (agindua == 0xF0000000) {
             printf("    [0x%06X] = 0x%08X  (EXIT)\n", pcb->mm.code + i, agindua);
-            break;  // EXIT-en ondoren gelditu
+            break;
         }
 
-        // Bakarrik 0 ez diren aginduak erakutsi
         if (agindua != 0) {
             uint8_t opcode = (agindua >> 28) & 0xF;
             const char* agindu_izena = "";
@@ -107,8 +111,7 @@ void debugMemoria(PCB* pcb) {
                 default: agindu_izena = "???"; break;
             }
 
-            printf("    [0x%06X] = 0x%08X  (%s)\n",
-                   pcb->mm.code + i, agindua, agindu_izena);
+            printf("    [0x%06X] = 0x%08X  (%s)\n", pcb->mm.code + i, agindua, agindu_izena);
         }
     }
 
@@ -128,8 +131,7 @@ void debugMemoria(PCB* pcb) {
 
         // Bakarrik 0 ez diren balioak erakutsi
         if (balioa != 0) {
-            printf("    [0x%06X] = 0x%08X (%d)\n",
-                   pcb->mm.data + i, balioa, (int32_t)balioa);
+            printf("    [0x%06X] = 0x%08X (%d)\n", pcb->mm.data + (i - (pcb->mm.data % ORRI_TAMAINA)), balioa, (int32_t)balioa);
         }
     }
 

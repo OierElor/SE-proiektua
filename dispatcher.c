@@ -30,7 +30,10 @@ void Dispatcher(PCB *jasotakopcb){
         }
         esleitua->pcb = jasotakopcb;
         esleitua->PTBR = jasotakopcb->mm.pgb;
-        esleitua->PC = jasotakopcb->mm.code;
+        esleitua->PC = jasotakopcb->gordePC;
+        for(int i=0; i<16; i++) {
+            esleitua->regs[i]=esleitua->pcb->gordeErregistroak[i];
+        }
         esleitua->libre = 0;
         tlbGarbitu(&esleitua->mmu.tlb);
 
