@@ -5,7 +5,6 @@
 #include "memoria.h"
 #include "CPU.h"
 
-// Helbide birtuala -> Helbide fisikoa (MMU + TLB)
 uint32_t helbideBirtualatikFisikora(haria *h, uint32_t helbide_birtuala) {
     if (!h->mmu.gaituta) {
         return helbide_birtuala; // MMU gaituta ez badago
@@ -19,8 +18,8 @@ uint32_t helbideBirtualatikFisikora(haria *h, uint32_t helbide_birtuala) {
     uint32_t frame_fisikoa = tlbBilatu(&h->mmu.tlb, orri_birtuala);
 
     if (frame_fisikoa != 0xFFFFFFFF) {
-        // TLB HIT!
         h->mmu.itzulpenak++;
+        printf("Hitzulpena eginda: %X -> %X (pid:%d)", helbide_birtuala, frame_fisikoa, h->pcb->pid);
         return (frame_fisikoa & ~((1 << ORRI_BITS) - 1)) | offset;
     }
 

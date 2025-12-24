@@ -32,65 +32,40 @@ void programaKargatu(const char* fitxategia, int garrantzia) {
     printf("\n=== PROGRAMA KARGATZEN: %s (PID: %d) ===\n", fitxategia, pcb->pid);
 
     char lerro[256];
-    uint32_t code_fisikoa = userMemoriaEskatu(ORRI_TAMAINA);
-    uint32_t data_fisikoa = userMemoriaEskatu(ORRI_TAMAINA);
-    uint32_t code_instructions = 0;
-    uint32_t data_count = 0;
+    uint32_t fisikoa = userMemoriaEskatu(ORRI_TAMAINA);
 
-    int segmentua = -1;
-
-    int aldaketa;
+    uint32_t helbide_birtuala = 0;
 
     while (fgets(lerro, sizeof(lerro), f)) {
         // .text goiburua
         if (strncmp(lerro, ".text", 5) == 0) {
             sscanf(lerro + 6, "%X", &pcb->mm.code);
+            helbide_birtuala = pcb->mm.code;
             continue;
         }
         // .data goiburua
         if (strncmp(lerro, ".data", 5) == 0) {
             sscanf(lerro + 6, "%X", &pcb->mm.data);
-            aldaketa = pcb->mm.data / 4;
-            //Dataren memoria birtuala aldatu ez edukitzeko code-aren berdina
             continue;
         }
         // Balio hexadezimala irakurri
         uint32_t balioa;
         if (sscanf(lerro, "%X", &balioa) == 1) {
-            if (aldaketa > 0){
-                memoriaIdatzi(code_fisikoa + code_instructions * HITZ_TAMAINA, balioa);
-                code_instructions++;
-                aldaketa--;
-            }else{
-                memoriaIdatzi(data_fisikoa + data_count * HITZ_TAMAINA, balioa);
-                data_count++;
-            }
+            memoriaIdatzi(fisikoa + helbide_birtuala, balioa);
+            helbide_birtuala += HITZ_TAMAINA;
         }
     }
-    printf("Code start: 0x%X (fisikoa: 0x%X)\n", pcb->mm.code, code_fisikoa);
-    printf("Data start: 0x%X (fisikoa: 0x%X)\n", pcb->mm.data, data_fisikoa);
+    printf("Code start: 0x%X (fisikoa: 0x%X)\n", pcb->mm.code, fisikoa);
+    printf("Data start: 0x%X (fisikoa: 0x%X)\n", pcb->mm.data, fisikoa + (pcb->mm.data - pcb->mm.code));
 
     fclose(f);
 
-    uint32_t code_orri = pcb->mm.code / ORRI_TAMAINA;
-    uint32_t data_orri = pcb->mm.data / ORRI_TAMAINA;
-    if(code_orri == data_orri){
-        pcb->mm.data = (code_orri + 1) + ORRI_TAMAINA;
-        data_orri = pcb->mm.data / ORRI_TAMAINA;
-    }
-
-    uint32_t code_offset = pcb->mm.pgb + (code_orri * sizeof(OrriTaulaSarrera));
-    uint32_t data_offset = pcb->mm.pgb + (data_orri * sizeof(OrriTaulaSarrera));
-
-    OrriTaulaSarrera code_sarrera = {code_fisikoa, 1, 0, 0};
-    memcpy(&memoria.memoria[code_offset], &code_sarrera, sizeof(OrriTaulaSarrera));
-
-    OrriTaulaSarrera data_sarrera = {data_fisikoa, 1, 0, 0};
-    memcpy(&memoria.memoria[data_offset], &data_sarrera, sizeof(OrriTaulaSarrera));
+    uint32_t sarreraZenbakia = pcb->mm.pgb + (0 * sizeof(OrriTaulaSarrera));
+    OrriTaulaSarrera sarrera = {fisikoa, 1, 0, 0};
+    memcpy(&memoria.memoria[sarreraZenbakia], &sarrera, sizeof(OrriTaulaSarrera));
 
     debugMemoria(pcb);
     prozesuaPush(pcb);
-    printf("\nPrograma kargatuta: %d agindu, %d datu\n", code_instructions, data_count);
     printf("===================================\n\n");
 }
 
@@ -145,10 +120,10 @@ void debugMemoria(PCB* pcb) {
     memcpy(&data_sarrera, &memoria.memoria[pcb->mm.pgb + data_orri * sizeof(OrriTaulaSarrera)], sizeof(OrriTaulaSarrera));
 
     printf("  Helbide birtuala: 0x%06X\n", pcb->mm.data);
-    printf("  Helbide fisikoa:  0x%06X\n", data_sarrera.fisikoa);
+    printf("  Helbide fisikoa:  0x%06X\n", data_sarrera.fisikoa + (pcb->mm.data % ORRI_TAMAINA));
     printf("  Datuak:\n");
 
-    for (uint32_t i = 0; i < ORRI_TAMAINA; i += HITZ_TAMAINA) {
+    for (uint32_t i = (pcb->mm.data % ORRI_TAMAINA); i < ORRI_TAMAINA; i += HITZ_TAMAINA) {
         uint32_t balioa = memoriaIrakurri(data_sarrera.fisikoa + i);
 
         // Bakarrik 0 ez diren balioak erakutsi
@@ -164,22 +139,18 @@ void debugMemoria(PCB* pcb) {
 void orriTaulaPantailaratu(PCB* pcb) {
     if (pcb == NULL) return;
 
-    // Tamaina kalkulatu: sarrera kopurua * sarrera bakoitzaren tamaina
-    uint32_t sarrera_tamaina = sizeof(OrriTaulaSarrera);
-    uint32_t taula_tamaina_byte = SARRERA_KOPURUA * sarrera_tamaina;
-
     printf("\n=== ORRI-TAULA INFO (PID: %d) ===\n", pcb->pid);
     printf("PGB (Hasierako helbide fisikoa): 0x%08X\n", pcb->mm.pgb);
-    printf("Taularen tamaina: %u byte (%d sarrera)\n", taula_tamaina_byte, SARRERA_KOPURUA);
+    printf("Taularen tamaina: %u byte (%d sarrera)\n", SARRERA_KOPURUA * sizeof(OrriTaulaSarrera), SARRERA_KOPURUA);
     printf("----------------------------------------------------------\n");
     printf("Indizea | Helb. Fisikoa | V (Valid) | A (Dirty) | R (Ref)\n");
     printf("----------------------------------------------------------\n");
 
     for (int i = 0; i < SARRERA_KOPURUA; i++) {
         OrriTaulaSarrera sarrera;
-        uint32_t sarrera_helbidea = pcb->mm.pgb + (i * sarrera_tamaina);
+        uint32_t sarrera_helbidea = pcb->mm.pgb + (i * sizeof(OrriTaulaSarrera));
 
-        memcpy(&sarrera, &memoria.memoria[sarrera_helbidea], sarrera_tamaina);
+        memcpy(&sarrera, &memoria.memoria[sarrera_helbidea], sizeof(OrriTaulaSarrera));
 
         if (sarrera.baliozkoa) {
             printf("  %3d   |   0x%08X  |     %d     |     %d     |    %d\n", i, sarrera.fisikoa, sarrera.baliozkoa, sarrera.aldatua, sarrera.erreferentziatua);
