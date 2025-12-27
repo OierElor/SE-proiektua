@@ -2,17 +2,19 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include "prozesuak.h"
 
-void ruleta();
+#define HASIERAKO_DIRU_MIN 1
+#define HASIERAKO_DIRU_MAX 10
 
-void garrantziaIgo();
+void jokoaAukeratu(PCB* pcb);
 
-void garrantziaReset();
+void ruleta(PCB* pcb);
 
-void blokeatuLehena();
+int gorriaDa(int n);
 
-void askatuBlokeoDenak();
+void diruaZero(PCB* pcb);
 
-void prozesuaSortuGertaera();
+void BihurtuVIP(PCB* pcb);
 
-void ilarakoProzesuaHil();
+void GalduVIP(PCB* pcb);

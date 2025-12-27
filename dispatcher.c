@@ -3,6 +3,7 @@
 #include "dispatcher.h"
 #include "prozesuak.h"
 #include "CPU.h"
+#include "gertaerak.h"
 
 void Dispatcher(PCB *jasotakopcb){
     jasotakopcb->running=1;
@@ -13,6 +14,8 @@ void Dispatcher(PCB *jasotakopcb){
         return;
     }
     else{
+        //PCU sartzen dena casinoan jokatzen du bere garrantzia diru bezala erabiliz
+        jokoaAukeratu(jasotakopcb);
         jasotakopcb->running=1;
         jasotakopcb->preferentziaCPU=esleitua->coreID;
 

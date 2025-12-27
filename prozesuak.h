@@ -14,7 +14,7 @@ typedef struct{
 typedef struct{
     int pid;
     int running;
-    int garrantzia;
+    int garrantzia; //CasUnix dirua
     int blokeatuta;
     int preferentziaCPU;
     uint32_t gordePC;

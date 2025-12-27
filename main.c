@@ -23,6 +23,8 @@ pthread_cond_t condS = PTHREAD_COND_INITIALIZER;
 int main(){
     srand(time(NULL)); //Zenbaki ausazko sortzailea hasieratu uneko denborarekin
 
+    printf("====== CasUnix hasieratzen da =====\n\n");
+
     printf("====== MEMORIA KONFIGURAZIOA ======\n");
     memoriaHasieratu();
     printf("===================================\n\n");
@@ -57,8 +59,12 @@ int main(){
 
     orriTaulakGuztiakPantailaratu();
 
+    //Denbora hasierako konfigurazioa ikusteko
+    printf("\n === Orain 5 segundu duzu programa gelditzeko eta hasierako konfigurazioa ikusteko ===\n");
+    sleep(5);
+
     //Temporizadore kantitatea ezaretzeko
-    TempCont = 2;
+    TempCont = 3;
     //Erlojua hasieratu
     pthread_t clock;
     //Scheduler hasieratu
@@ -70,7 +76,7 @@ int main(){
     TempArgs *args = calloc(TempCont, sizeof(TempArgs));
 
     // Maiztasun desberdinak definitu
-    int maiztasunak[] = {10, 30};
+    int maiztasunak[] = {10, 1};
 
     for(int i=0; i<TempCont; i++){
         args[i].id = i;

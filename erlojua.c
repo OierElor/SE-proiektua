@@ -9,6 +9,7 @@
 #include "prozesuak.h"
 #include "exekuzioMotorra.h"
 
+int amaitu = 0;
 void *erlojua(void *arg){
     printf("Erlojua exekutatzen hasi da\n");
     while(1){
@@ -16,17 +17,15 @@ void *erlojua(void *arg){
         while (Done < TempCont) {
             pthread_cond_wait(&cond, &mutex);
         }
-        sleep(1);
+        //sleep(1);
         printf("\nTick!");
-
-        //Exekutatu prozesagailuko hari guztiak
-        for(int i = 0; i < hariTotalak; i++){
-            haria *h = cpu.hariakIlara[i];
-            if(h->pcb != NULL && h->pcb->running){
-                exekutatuProzesua(h);
-            }
+        amaitu++;
+        //Emaitzak ikusteko
+        if(amaitu>150){
+            printf("\nOrain 10 segundu duzu aurretik exekutatu diren 150 aginduak ikusteko\n");
+            sleep(10);
+            amaitu=0;
         }
-
         Done = 0;
         pthread_cond_broadcast(&cond2);
         pthread_mutex_unlock(&mutex);
@@ -46,13 +45,16 @@ void *temporizadorea(void *arg){
         i++;
         if(i==args->maiztasuna){
             i=0;
-            printf(" <--Temp %d",
-                args->id);
-            //Ilarako pcb danen garrantzia igo
-            /*if(args->id == 1){
-                printf("<-- RULETA!!!");
-                ruleta();
-            }*/
+            printf(" <--Temp %d", args->id);
+            if(args->id==1){
+                //Exekutatu prozesagailuko hari guztiak
+                for(int i = 0; i < hariTotalak; i++){
+                    haria *h = cpu.hariakIlara[i];
+                    if(h->pcb != NULL && h->pcb->running){
+                        exekutatuProzesua(h);
+                    }
+                }
+            }
             // Scheduler-ari seinalea bidali
             if(args->id == 0){
                 schedulerdeitu();
