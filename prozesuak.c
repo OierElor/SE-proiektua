@@ -4,6 +4,8 @@
 
 int last_ID = 1;
 
+pcb_zerrenda amaituDirena = {NULL};
+
 prozesu_ilara ready;
 //Prozesuak sortzeko funtzioa
 PCB* prozesuakSortu(int garrantzi){
@@ -84,4 +86,38 @@ void prozesuaPush(PCB *sartzenDena){
         ready.azkena=nodoa;
         nodoa->hurrengoa = NULL;
     }
+}
+
+void pcbAmaituMarkatu(PCB *pcb) {
+    if (pcb == NULL) return;
+
+    pcb_zerrenda_zatia *nodoa = (pcb_zerrenda_zatia*)malloc(sizeof(pcb_zerrenda_zatia));
+
+    nodoa->pcb = pcb;
+    nodoa->hurrengoa = amaituDirena.lehena;
+    amaituDirena.lehena = nodoa;
+
+    printf("PCB %d amaitu diren zerrendara gehituta\n", pcb->pid);
+}
+
+void pcbakGarbitu() {
+    pcb_zerrenda_zatia *momentukoa = amaituDirena.lehena;
+    int askatuta = 0;
+
+    while (momentukoa != NULL) {
+        pcb_zerrenda_zatia *hurrengoa = momentukoa->hurrengoa;
+
+        printf("PCB %d askatzen... ", momentukoa->pcb->pid);
+        free(momentukoa->pcb);  // ✅ Orain segurua da
+        free(momentukoa);
+        askatuta++;
+
+        momentukoa = hurrengoa;
+    }
+
+    if (askatuta > 0) {
+        printf("\n%d PCB askatu dira\n", askatuta);
+    }
+
+    amaituDirena.lehena = NULL;
 }

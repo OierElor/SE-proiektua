@@ -85,19 +85,7 @@ void decode_execute(haria *h) {
             // Memoria dump erakutsi amaieran
             debugMemoria(h->pcb);
 
-            // Estatistikak erakutsi
-            printf("\n=== MMU ESTATISTIKAK (PID: %d) ===\n", h->pcb->pid);
-            printf("Itzulpenak: %u\n", h->mmu.itzulpenak);
-            printf("TLB Hits: %u\n", h->mmu.tlb.hits);
-            printf("TLB Misses: %u\n", h->mmu.tlb.misses);
-            if (h->mmu.itzulpenak > 0) {
-                float hit_rate = (float)h->mmu.tlb.hits / h->mmu.itzulpenak * 100;
-                printf("TLB Hit Rate: %.2f%%\n", hit_rate);
-            }
-            printf("Page Faults: %u\n", h->mmu.orriHutsigitea);
-            printf("================================\n\n");
-
-            free(h->pcb);
+            pcbAmaituMarkatu(h->pcb);
             h->pcb = NULL;
             break;
         }
@@ -113,10 +101,7 @@ void exekutatuProzesua(haria *h) {
     if (h == NULL || h->pcb == NULL || !h->pcb->running) {
         return;
     }
-
     printf("\n>>> EXEKUTATZEN: PID %d (Core: %d)\n", h->pcb->pid, h->coreID);
-
-    //debugMemoria(h->pcb);
 
     printf("PC=0x%06X: ", h->PC);
 

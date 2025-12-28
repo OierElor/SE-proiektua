@@ -106,3 +106,16 @@ void tlbGarbitu(TLB *tlb) {
     }
     tlb->HurrengoSarrera = 0;
 }
+
+void mmuEstadistikakErakutsi(haria* h){
+    printf("\n=== MMU ESTATISTIKAK ===\n");
+    printf("Itzulpenak: %u\n", h->mmu.itzulpenak);
+    printf("TLB Hits: %u\n", h->mmu.tlb.hits);
+    printf("TLB Misses: %u\n", h->mmu.tlb.misses);
+    if (h->mmu.itzulpenak > 0) {
+        float hit_rate = (float)h->mmu.tlb.hits / h->mmu.itzulpenak * 100;
+        printf("TLB Hit Rate: %.2f%%\n", hit_rate);
+    }
+    printf("Page Faults: %u\n", h->mmu.orriHutsigitea);
+    printf("================================\n\n");
+}

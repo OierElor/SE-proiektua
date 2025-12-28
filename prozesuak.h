@@ -46,4 +46,18 @@ PCB* prozesuaPick();
 
 void prozesuaPush(PCB *sartzenDena);
 
+typedef struct pcb_zerrenda_zatia {
+    PCB *pcb;
+    struct pcb_zerrenda_zatia *hurrengoa;
+} pcb_zerrenda_zatia;
+
+typedef struct {
+    pcb_zerrenda_zatia *lehena;
+} pcb_zerrenda;
+
+extern pcb_zerrenda amaituDirena;
+
+void pcbakGarbitu();
+void pcbAmaituMarkatu(PCB *pcb);
+
 #endif

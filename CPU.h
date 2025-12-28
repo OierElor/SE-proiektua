@@ -67,4 +67,6 @@ uint32_t tlbBilatu(TLB *tlb, uint32_t orri_birtuala);
 void tlbSartu(TLB *tlb, uint32_t orri_birtuala, uint32_t frame_fisikoa);
 void tlbGarbitu(TLB *tlb);
 
+void mmuEstadistikakErakutsi();
+
 #endif

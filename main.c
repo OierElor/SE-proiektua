@@ -86,6 +86,10 @@ int main(){
 
     pthread_exit(NULL);
 
+    for(int i=0; i<harikop*corekop; i++){
+        mmuEstadistikakErakutsi(cpu.hariakIlara[i]);
+    }
+
     memoriaLibratu();
 
     free(threads);

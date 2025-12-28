@@ -30,6 +30,7 @@ void *erlojua(void *arg){
         */
         Done = 0;
         pthread_cond_broadcast(&cond2);
+        pcbakGarbitu();
         pthread_mutex_unlock(&mutex);
     }
     return NULL;
