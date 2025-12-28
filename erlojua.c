@@ -21,11 +21,13 @@ void *erlojua(void *arg){
         printf("\nTick!");
         amaitu++;
         //Emaitzak ikusteko
-        if(amaitu>150){
-            printf("\nOrain 10 segundu duzu aurretik exekutatu diren 150 aginduak ikusteko\n");
-            sleep(10);
+        /*
+        if(amaitu>200){
+            printf("\nOrain 5 segundu duzu aurretik exekutatu diren 200 aginduak ikusteko\n");
+            sleep(5);
             amaitu=0;
         }
+        */
         Done = 0;
         pthread_cond_broadcast(&cond2);
         pthread_mutex_unlock(&mutex);

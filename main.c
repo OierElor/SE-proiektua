@@ -43,7 +43,7 @@ int main(){
     Done = 0;
 
     printf("=== PROGRAMAK KARGATZEN ===\n");
-    int programaKop = 10;  // Zenbat programa kargatu nahi ditugun
+    int programaKop = 50;  // Zenbat programa kargatu nahi ditugun
     int kargatuak = 0;
     char fitxategia[50];
 
@@ -60,8 +60,8 @@ int main(){
     orriTaulakGuztiakPantailaratu();
 
     //Denbora hasierako konfigurazioa ikusteko
-    printf("\n === Orain 5 segundu duzu programa gelditzeko eta hasierako konfigurazioa ikusteko ===\n");
-    sleep(5);
+    printf("\n === Orain 3 segundu duzu programa gelditzeko eta hasierako konfigurazioa ikusteko ===\n");
+    sleep(3);
 
     //Temporizadore kantitatea ezaretzeko
     TempCont = 3;
