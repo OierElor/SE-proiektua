@@ -84,8 +84,22 @@ void decode_execute(haria *h) {
             h->pcb->running = 0;
             h->libre = 1;
 
-            // Memoria dump erakutsi amaieran
+            // Memoria dump pantailan
             debugData(h->pcb);
+
+            // Memoria dump fitxategian gorde
+            char fitxategia[150];
+            sprintf(fitxategia, "Emaitzak/Emaitza_prog%03d.txt", h->pcb->pid-1
+
+            );
+            FILE* f = fopen(fitxategia, "w");
+            if (f != NULL) {
+                debugMemoriaToFile(h->pcb, f);
+                fclose(f);
+                printf("      >>> Memoria dump gordeta: %s\n", fitxategia);
+            } else {
+                printf("      ERROREA: Ezin izan da %s fitxategia sortu\n", fitxategia);
+            }
 
             pcbAmaituMarkatu(h->pcb);
             h->pcb = NULL;

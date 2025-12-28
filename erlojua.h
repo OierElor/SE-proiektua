@@ -8,6 +8,7 @@ typedef struct{
     int maiztasuna;
 }TempArgs;
 
+extern int sistemaAmaitu;
 extern int TempCont;
 extern int Done;
 extern pthread_mutex_t mutex;

@@ -32,7 +32,8 @@ typedef struct {
 
 typedef struct{
     int libre;
-    int coreID; //Jakiteko haria ze coretakoa den
+    int coreID;
+    int hariaID;
     PCB *pcb;
 
     MMU mmu;

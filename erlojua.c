@@ -11,9 +11,9 @@
 
 void *erlojua(void *arg){
     printf("Erlojua exekutatzen hasi da\n");
-    while(1){
+    while(!sistemaAmaitu){
         pthread_mutex_lock(&mutex);
-        while (Done < TempCont) {
+        while (Done < TempCont && !sistemaAmaitu) {
             pthread_cond_wait(&cond, &mutex);
         }
         printf("\nTick!");
@@ -33,7 +33,7 @@ void *temporizadorea(void *arg){
 
     int i=0;
     pthread_mutex_lock(&mutex);
-    while(1){
+    while(!sistemaAmaitu){
         Done++;
         i++;
         if(i==args->maiztasuna){

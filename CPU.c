@@ -30,6 +30,7 @@ void cpuHasieratu(int ckop, int hkop){
         for(j = 0; j < hkop; j++){
             cpu.coreak[i].hariak[j].libre=1;
             cpu.coreak[i].hariak[j].coreID=i;
+            cpu.coreak[i].hariak[j].hariaID=j;
             cpu.coreak[i].hariak[j].pcb = NULL;
 
             //Erregistroak hasieratu
@@ -109,6 +110,7 @@ void tlbGarbitu(TLB *tlb) {
 
 void mmuEstadistikakErakutsi(haria* h){
     printf("\n=== MMU ESTATISTIKAK ===\n");
+    printf("Haria: %d | Core: %d\n", h->hariaID, h->coreID);
     printf("Itzulpenak: %u\n", h->mmu.itzulpenak);
     printf("TLB Hits: %u\n", h->mmu.tlb.hits);
     printf("TLB Misses: %u\n", h->mmu.tlb.misses);
@@ -117,5 +119,5 @@ void mmuEstadistikakErakutsi(haria* h){
         printf("TLB Hit Rate: %.2f%%\n", hit_rate);
     }
     printf("Page Faults: %u\n", h->mmu.orriHutsigitea);
-    printf("================================\n\n");
+    printf("========================\n");
 }

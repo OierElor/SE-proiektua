@@ -12,6 +12,7 @@
 #include "loader.h"
 
 int TempCont;
+int sistemaAmaitu = 0;
 int Done;
 pthread_mutex_t mutexS = PTHREAD_MUTEX_INITIALIZER;
 pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
