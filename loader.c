@@ -38,37 +38,56 @@ void programaKargatu(const char* fitxategia, int garrantzia) {
     printf("\n=== PROGRAMA KARGATZEN: %s (PID: %d) ===\n", fitxategia, pcb->pid);
 
     char lerro[256];
-    uint32_t fisikoa = userMemoriaEskatu(ORRI_TAMAINA);
+    uint32_t fisikoa[SARRERA_KOPURUA];
+
+    fisikoa[0] = userMemoriaEskatu(ORRI_TAMAINA);
 
     uint32_t helbide_birtuala = 0;
 
+    // .text goiburua
+    fgets(lerro, sizeof(lerro), f);
+    sscanf(lerro + 6, "%X", &pcb->mm.code);
+    helbide_birtuala = pcb->mm.code;
+    // .data goiburua
+    fgets(lerro, sizeof(lerro), f);
+    sscanf(lerro + 6, "%X", &pcb->mm.data);
+
+    int lerroKopCode = (pcb->mm.data - pcb->mm.code)/HITZ_TAMAINA;
+
+    int orriZenbakia = 0;
+    uint32_t orriBarnekoHelbidea = 0;
+    uint32_t dataHelbidea=0;
+
     while (fgets(lerro, sizeof(lerro), f)) {
-        // .text goiburua
-        if (strncmp(lerro, ".text", 5) == 0) {
-            sscanf(lerro + 6, "%X", &pcb->mm.code);
-            helbide_birtuala = pcb->mm.code;
-            continue;
-        }
-        // .data goiburua
-        if (strncmp(lerro, ".data", 5) == 0) {
-            sscanf(lerro + 6, "%X", &pcb->mm.data);
-            continue;
-        }
         // Balio hexadezimala irakurri
+        if(orriBarnekoHelbidea>=ORRI_TAMAINA){
+            orriZenbakia++;
+            if(orriZenbakia>=SARRERA_KOPURUA){
+                printf("Sarrera kopurua gainditu da");
+                exit(EXIT_FAILURE);
+            }
+            fisikoa[orriZenbakia]=userMemoriaEskatu(ORRI_TAMAINA);
+        }
         uint32_t balioa;
         if (sscanf(lerro, "%X", &balioa) == 1) {
-            memoriaIdatzi(fisikoa + helbide_birtuala, balioa);
+            memoriaIdatzi(fisikoa[orriZenbakia] + helbide_birtuala, balioa);
             helbide_birtuala += HITZ_TAMAINA;
+            if(lerroKopCode==0){
+                dataHelbidea=fisikoa[orriZenbakia] + helbide_birtuala;
+            }
+            lerroKopCode--;
         }
     }
     printf("Code start: 0x%X (fisikoa: 0x%X)\n", pcb->mm.code, fisikoa);
-    printf("Data start: 0x%X (fisikoa: 0x%X)\n", pcb->mm.data, fisikoa + (pcb->mm.data - pcb->mm.code));
+    printf("Data start: 0x%X (fisikoa: 0x%X)\n", pcb->mm.data, dataHelbidea);
 
     fclose(f);
 
-    uint32_t sarreraZenbakia = pcb->mm.pgb + (0 * sizeof(OrriTaulaSarrera));
-    OrriTaulaSarrera sarrera = {fisikoa, 1, 0, 0};
-    memcpy(&memoria.memoria[sarreraZenbakia], &sarrera, sizeof(OrriTaulaSarrera));
+    for(int i=0; i<=orriZenbakia;i++){
+        uint32_t sarreraZenbakia = pcb->mm.pgb + (i * sizeof(OrriTaulaSarrera));
+        OrriTaulaSarrera sarrera = {fisikoa[i], 1, 0, 0};
+        memcpy(&memoria.memoria[sarreraZenbakia], &sarrera, sizeof(OrriTaulaSarrera));
+    }
 
     debugMemoria(pcb);
     prozesuaPush(pcb);

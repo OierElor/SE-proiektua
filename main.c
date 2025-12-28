@@ -61,7 +61,7 @@ int main(){
 
     //Denbora hasierako konfigurazioa ikusteko
     printf("\n === Orain 3 segundu duzu programa gelditzeko eta hasierako konfigurazioa ikusteko ===\n");
-    sleep(0);
+    sleep(3);
 
     //Temporizadore kantitatea ezaretzeko
     TempCont = 2;
