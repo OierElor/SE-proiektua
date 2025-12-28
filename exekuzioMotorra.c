@@ -85,7 +85,7 @@ void decode_execute(haria *h) {
             h->libre = 1;
 
             // Memoria dump erakutsi amaieran
-            debugMemoria(h->pcb);
+            debugData(h->pcb);
 
             pcbAmaituMarkatu(h->pcb);
             h->pcb = NULL;

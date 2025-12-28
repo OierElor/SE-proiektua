@@ -94,83 +94,153 @@ void programaKargatu(const char* fitxategia, int garrantzia) {
     printf("===================================\n\n");
 }
 
-void debugMemoria(PCB* pcb) {
-    if (pcb == NULL) return;
-
-    printf("\n=== MEMORIA DUMP (PID: %d) ===\n", pcb->pid);
-
-    // ============ .CODE SEGMENTUA ============
-    printf("--- .CODE SEGMENTUA ---\n");
-
-    uint32_t code_orri = pcb->mm.code / ORRI_TAMAINA;
-
-    uint32_t code_sarrera_helbidea = pcb->mm.pgb + code_orri * sizeof(OrriTaulaSarrera);
-    if (code_sarrera_helbidea + sizeof(OrriTaulaSarrera) > memoria.tamaina) {
-        printf("  ERROREA: Orri-taula helbide txarra (0x%X)\n", code_sarrera_helbidea);
+void debugCode(PCB* pcb) {
+    if (pcb == NULL) {
+        printf("   PCB NULL da\n");
         return;
     }
+
+    printf("\n┌─────────────────────────────────────────────────────────────────┐\n");
+    printf("│             .CODE SEGMENTUA (PID: %d)                           │\n", pcb->pid);
+    printf("└─────────────────────────────────────────────────────────────────┘\n");
+
+    uint32_t code_orri = pcb->mm.code / ORRI_TAMAINA;
+    uint32_t code_sarrera_helbidea = pcb->mm.pgb + code_orri * sizeof(OrriTaulaSarrera);
+
+    if (code_sarrera_helbidea + sizeof(OrriTaulaSarrera) > memoria.tamaina) {
+        printf("   ERROREA: Orri-taula helbide txarra (0x%X)\n", code_sarrera_helbidea);
+        return;
+    }
+
     OrriTaulaSarrera code_sarrera;
     memcpy(&code_sarrera, &memoria.memoria[code_sarrera_helbidea], sizeof(OrriTaulaSarrera));
 
-
     if (!code_sarrera.baliozkoa) {
-        printf("  OHARRA: Code sarrera ez da baliozkoa\n");
+        printf("   OHARRA: Code sarrera ez da baliozkoa\n");
         return;
     }
+
     if (code_sarrera.fisikoa + ORRI_TAMAINA > memoria.tamaina) {
-        printf("  ERROREA: Frame fisikoa txarra (0x%X)\n", code_sarrera.fisikoa);
+        printf("   ERROREA: Frame fisikoa txarra (0x%X)\n", code_sarrera.fisikoa);
         return;
     }
 
-    printf("  Helbide birtuala: 0x%06X\n", pcb->mm.code);
-    printf("  Helbide fisikoa:  0x%06X\n", code_sarrera.fisikoa);
-    printf("  Aginduak:\n");
+    printf("   Helbide birtuala: 0x%06X\n", pcb->mm.code);
+    printf("   Helbide fisikoa:  0x%06X\n", code_sarrera.fisikoa);
+    printf("\n  Aginduak:\n");
+    printf("  ─────────────────────────────────────────────────────────────────\n");
 
+    int agindu_kopurua = 0;
     for (uint32_t i = 0; i < ORRI_TAMAINA; i += HITZ_TAMAINA) {
         uint32_t agindua = memoriaIrakurri(code_sarrera.fisikoa + i);
 
         if (agindua == 0xF0000000) {
-            printf("    [0x%06X] = 0x%08X  (EXIT)\n", pcb->mm.code + i, agindua);
+            printf("    [0x%06X] 0x%08X  → EXIT\n", pcb->mm.code + i, agindua);
+            agindu_kopurua++;
             break;
         }
 
         if (agindua != 0) {
             uint8_t opcode = (agindua >> 28) & 0xF;
-            const char* agindu_izena = "";
+            uint8_t reg = (agindua >> 24) & 0xF;
+            uint32_t addr = agindua & 0xFFFFFF;
 
             switch(opcode) {
-                case 0x0: agindu_izena = "LD"; break;
-                case 0x1: agindu_izena = "ST"; break;
-                case 0x2: agindu_izena = "ADD"; break;
-                case 0xF: agindu_izena = "EXIT"; break;
-                default: agindu_izena = "???"; break;
+                case 0x0: // LD
+                    printf("    [0x%06X] 0x%08X  → LD   R%d, [0x%06X]\n",
+                           pcb->mm.code + i, agindua, reg, addr);
+                    break;
+                case 0x1: // ST
+                    printf("    [0x%06X] 0x%08X  → ST   [0x%06X], R%d\n",
+                           pcb->mm.code + i, agindua, addr, reg);
+                    break;
+                case 0x2: { // ADD
+                    uint8_t r3 = (agindua >> 24) & 0xF;
+                    uint8_t r1 = (agindua >> 20) & 0xF;
+                    uint8_t r2 = (agindua >> 16) & 0xF;
+                    printf("    [0x%06X] 0x%08X  → ADD  R%d, R%d, R%d\n",
+                           pcb->mm.code + i, agindua, r3, r1, r2);
+                    break;
+                }
+                case 0xF: // EXIT
+                    printf("    [0x%06X] 0x%08X  → EXIT\n",
+                           pcb->mm.code + i, agindua);
+                    break;
+                default:
+                    printf("    [0x%06X] 0x%08X  → ??? (Agindu ezezaguna)\n",
+                           pcb->mm.code + i, agindua);
+                    break;
             }
-
-            printf("    [0x%06X] = 0x%08X  (%s)\n", pcb->mm.code + i, agindua, agindu_izena);
+            agindu_kopurua++;
         }
     }
 
-    // ============ .DATA SEGMENTUA ============
-    printf("\n--- .DATA SEGMENTUA ---\n");
+    printf("\n  Guztira %d agindu\n", agindu_kopurua);
+    printf("  ─────────────────────────────────────────────────────────────────\n\n");
+}
+
+void debugData(PCB* pcb) {
+    if (pcb == NULL) {
+        printf("   PCB NULL da\n");
+        return;
+    }
+
+    printf("\n┌─────────────────────────────────────────────────────────────────┐\n");
+    printf("│             .DATA SEGMENTUA (PID: %d)                           │\n", pcb->pid);
+    printf("└─────────────────────────────────────────────────────────────────┘\n");
 
     uint32_t data_orri = pcb->mm.data / ORRI_TAMAINA;
-    OrriTaulaSarrera data_sarrera;
-    memcpy(&data_sarrera, &memoria.memoria[pcb->mm.pgb + data_orri * sizeof(OrriTaulaSarrera)], sizeof(OrriTaulaSarrera));
+    uint32_t data_sarrera_helbidea = pcb->mm.pgb + data_orri * sizeof(OrriTaulaSarrera);
 
-    printf("  Helbide birtuala: 0x%06X\n", pcb->mm.data);
-    printf("  Helbide fisikoa:  0x%06X\n", data_sarrera.fisikoa + (pcb->mm.data % ORRI_TAMAINA));
-    printf("  Datuak:\n");
+    if (data_sarrera_helbidea + sizeof(OrriTaulaSarrera) > memoria.tamaina) {
+        printf("   ERROREA: Orri-taula helbide txarra (0x%X)\n", data_sarrera_helbidea);
+        return;
+    }
+
+    OrriTaulaSarrera data_sarrera;
+    memcpy(&data_sarrera, &memoria.memoria[data_sarrera_helbidea], sizeof(OrriTaulaSarrera));
+
+    if (!data_sarrera.baliozkoa) {
+        printf("   OHARRA: Data sarrera ez da baliozkoa\n");
+        return;
+    }
+
+    if (data_sarrera.fisikoa + ORRI_TAMAINA > memoria.tamaina) {
+        printf("   ERROREA: Frame fisikoa txarra (0x%X)\n", data_sarrera.fisikoa);
+        return;
+    }
+
+    printf("   Helbide birtuala: 0x%06X\n", pcb->mm.data);
+    printf("   Helbide fisikoa:  0x%06X\n", data_sarrera.fisikoa + (pcb->mm.data % ORRI_TAMAINA));
+    printf("\n  Datuak:\n");
+    printf("  ─────────────────────────────────────────────────────────────────\n");
+
+    int datuKop = 0;
 
     for (uint32_t i = (pcb->mm.data % ORRI_TAMAINA); i < ORRI_TAMAINA; i += HITZ_TAMAINA) {
         uint32_t balioa = memoriaIrakurri(data_sarrera.fisikoa + i);
 
-        // Bakarrik 0 ez diren balioak erakutsi
         if (balioa != 0) {
-            printf("    [0x%06X] = 0x%08X (%d)\n", pcb->mm.data + (i - (pcb->mm.data % ORRI_TAMAINA)), balioa, (int32_t)balioa);
+            int32_t signed_val = (int32_t)balioa;
+            printf("    [0x%06X]  0x%08X  →  %-11d \n", pcb->mm.data + (i - (pcb->mm.data % ORRI_TAMAINA)), balioa, signed_val);
+            datuKop++;
         }
     }
+    printf("\n   Guztira %d datu\n", datuKop);
 
-    printf("=========================\n\n");
+    printf("  ─────────────────────────────────────────────────────────────────\n\n");
+}
+
+void debugMemoria(PCB* pcb) {
+    if (pcb == NULL) return;
+
+    printf("\n╔══════════════════════════════════════════════════════════════════╗\n");
+    printf("║           MEMORIA DUMP (PID: %d)                                 ║\n", pcb->pid);
+    printf("╚══════════════════════════════════════════════════════════════════╝\n");
+
+    debugCode(pcb);
+    debugData(pcb);
+
 }
 
 void orriTaulaPantailaratu(PCB* pcb) {

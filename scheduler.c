@@ -28,12 +28,12 @@ void *scheduler(void *arg){
                 }
             }
             if(amaitu){
-                printf("\n========================================================================");
-                printf("\nOrain 30 segundu duzu aurretik exekutatu diren aginduak guztiak ikusteko");
-                printf("\n========================================================================");
                 for(int i=0; i<cpu.corekop*cpu.harikopCoreko; i++){
                     mmuEstadistikakErakutsi(cpu.hariakIlara[i]);
                 }
+                printf("\n===============================");
+                printf("\n Programa denak exekutatu dira");
+                printf("\n===============================");
                 sleep(30);
             }
         }
