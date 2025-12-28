@@ -9,7 +9,6 @@
 #include "prozesuak.h"
 #include "exekuzioMotorra.h"
 
-int amaitu = 0;
 void *erlojua(void *arg){
     printf("Erlojua exekutatzen hasi da\n");
     while(1){
@@ -17,17 +16,8 @@ void *erlojua(void *arg){
         while (Done < TempCont) {
             pthread_cond_wait(&cond, &mutex);
         }
-        //sleep(1);
         printf("\nTick!");
-        amaitu++;
-        //Emaitzak ikusteko
-        /*
-        if(amaitu>200){
-            printf("\nOrain 5 segundu duzu aurretik exekutatu diren 200 aginduak ikusteko\n");
-            sleep(5);
-            amaitu=0;
-        }
-        */
+
         Done = 0;
         pthread_cond_broadcast(&cond2);
         pcbakGarbitu();
@@ -48,15 +38,10 @@ void *temporizadorea(void *arg){
         i++;
         if(i==args->maiztasuna){
             i=0;
-            printf(" <--Temp %d", args->id);
+            //printf(" <--Temp %d", args->id);
             if(args->id==1){
                 //Exekutatu prozesagailuko hari guztiak
-                for(int i = 0; i < hariTotalak; i++){
-                    haria *h = cpu.hariakIlara[i];
-                    if(h->pcb != NULL && h->pcb->running){
-                        exekutatuProzesua(h);
-                    }
-                }
+                hariDenakExekutatu();
             }
             // Scheduler-ari seinalea bidali
             if(args->id == 0){

@@ -84,8 +84,24 @@ void debugMemoria(PCB* pcb) {
     printf("--- .CODE SEGMENTUA ---\n");
 
     uint32_t code_orri = pcb->mm.code / ORRI_TAMAINA;
+
+    uint32_t code_sarrera_helbidea = pcb->mm.pgb + code_orri * sizeof(OrriTaulaSarrera);
+    if (code_sarrera_helbidea + sizeof(OrriTaulaSarrera) > memoria.tamaina) {
+        printf("  ERROREA: Orri-taula helbide txarra (0x%X)\n", code_sarrera_helbidea);
+        return;
+    }
     OrriTaulaSarrera code_sarrera;
-    memcpy(&code_sarrera, &memoria.memoria[pcb->mm.pgb + code_orri * sizeof(OrriTaulaSarrera)], sizeof(OrriTaulaSarrera));
+    memcpy(&code_sarrera, &memoria.memoria[code_sarrera_helbidea], sizeof(OrriTaulaSarrera));
+
+
+    if (!code_sarrera.baliozkoa) {
+        printf("  OHARRA: Code sarrera ez da baliozkoa\n");
+        return;
+    }
+    if (code_sarrera.fisikoa + ORRI_TAMAINA > memoria.tamaina) {
+        printf("  ERROREA: Frame fisikoa txarra (0x%X)\n", code_sarrera.fisikoa);
+        return;
+    }
 
     printf("  Helbide birtuala: 0x%06X\n", pcb->mm.code);
     printf("  Helbide fisikoa:  0x%06X\n", code_sarrera.fisikoa);

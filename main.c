@@ -32,8 +32,8 @@ int main(){
     ready.lehena = NULL;
     ready.azkena = NULL;
     //cpu-hasieratu
-    int harikop = 1;
-    int corekop = 1;
+    int harikop = 2;
+    int corekop = 2;
     azkenHaria=0;
     cpuHasieratu(corekop, harikop);
     printf("=== CPU KONFIGURAZIOA ===\n");
@@ -61,10 +61,10 @@ int main(){
 
     //Denbora hasierako konfigurazioa ikusteko
     printf("\n === Orain 3 segundu duzu programa gelditzeko eta hasierako konfigurazioa ikusteko ===\n");
-    sleep(3);
+    sleep(0);
 
     //Temporizadore kantitatea ezaretzeko
-    TempCont = 3;
+    TempCont = 2;
     //Erlojua hasieratu
     pthread_t clock;
     //Scheduler hasieratu
@@ -76,7 +76,7 @@ int main(){
     TempArgs *args = calloc(TempCont, sizeof(TempArgs));
 
     // Maiztasun desberdinak definitu
-    int maiztasunak[] = {10, 1};
+    int maiztasunak[] = {3, 1};
 
     for(int i=0; i<TempCont; i++){
         args[i].id = i;
@@ -85,10 +85,6 @@ int main(){
     }
 
     pthread_exit(NULL);
-
-    for(int i=0; i<harikop*corekop; i++){
-        mmuEstadistikakErakutsi(cpu.hariakIlara[i]);
-    }
 
     memoriaLibratu();
 

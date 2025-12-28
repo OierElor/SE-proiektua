@@ -31,6 +31,9 @@ void jokoaAukeratu(PCB* pcb){
 }
 
 void ruleta(PCB* pcb){
+    if(pcb==NULL){
+        printf("Ruletak jaso duen pcb-a NULL da");
+    }
     int apustutakoDirua = (rand() % (pcb->garrantzia)) + 1;
     int emaitza = rand() % 37;
     int apustuMota =rand() % 7;

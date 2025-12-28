@@ -5,6 +5,8 @@
 #include "memoria.h"
 #include "CPU.h"
 
+int DispacherZikloa = 0;
+
 uint32_t helbideBirtualatikFisikora(haria *h, uint32_t helbide_birtuala) {
     if (!h->mmu.gaituta) {
         return helbide_birtuala; // MMU gaituta ez badago
@@ -110,3 +112,20 @@ void exekutatuProzesua(haria *h) {
 
     decode_execute(h);
 }
+
+void hariDenakExekutatu(){
+    DispacherZikloa++;
+    if(DispacherZikloa<10){
+        printf("\n=== Exekuzio Motorra ===");
+        for(int j = 0; j < hariTotalak; j++){
+            haria *h = cpu.hariakIlara[j];
+            if(h->pcb != NULL && h->pcb->running){
+                exekutatuProzesua(h);
+            }
+        }
+    }
+    else{
+        DispacherZikloa=0;
+    }
+}
+

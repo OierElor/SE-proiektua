@@ -17,5 +17,6 @@ void exekutatuProzesua(haria *h);
 uint32_t helbideBirtualatikFisikora(haria *h, uint32_t helbide_birtuala);
 void hurrengoAgindua(haria *h);
 void decode_execute(haria *h);
+void hariDenakExekutatu();
 
 #endif
