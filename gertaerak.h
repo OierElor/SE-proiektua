@@ -6,8 +6,19 @@
 
 #define HASIERAKO_DIRU_MIN 1
 #define HASIERAKO_DIRU_MAX 10
+#define VIP_MAXIMO 2
+#define VIP_IZATEKO_GARRANTZIA 50
+
+extern int AzkenVIP;
+extern PCB* VIPLista[VIP_MAXIMO];
 
 void jokoaAukeratu(PCB* pcb);
+
+void blackJack(PCB* pcb);
+
+int blackJackKartaJaso();
+
+void txanpon_Makina(PCB* pcb);
 
 void ruleta(PCB* pcb);
 
