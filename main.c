@@ -77,7 +77,7 @@ int main(){
     TempArgs *args = calloc(TempCont, sizeof(TempArgs));
 
     // Maiztasun desberdinak definitu
-    int maiztasunak[] = {3, 1};
+    int maiztasunak[] = {5, 1};
 
     for(int i=0; i<TempCont; i++){
         args[i].id = i;
@@ -88,7 +88,6 @@ int main(){
     pthread_exit(NULL);
 
     memoriaLibratu();
-
     free(threads);
     free(args);
 
