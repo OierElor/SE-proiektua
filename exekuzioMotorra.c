@@ -112,7 +112,6 @@ void decode_execute(haria *h) {
     }
 }
 
-// Prozesuaren exekuzio osoa
 void exekutatuProzesua(haria *h) {
     if (h == NULL || h->pcb == NULL || !h->pcb->running) {
         return;
@@ -128,18 +127,12 @@ void exekutatuProzesua(haria *h) {
 }
 
 void hariDenakExekutatu(){
-    DispacherZikloa++;
-    if(DispacherZikloa<10){
-        printf("\n=== Exekuzio Motorra ===");
-        for(int j = 0; j < hariTotalak; j++){
-            haria *h = cpu.hariakIlara[j];
-            if(h->pcb != NULL && h->pcb->running){
-                exekutatuProzesua(h);
-            }
+    printf("\n=== Exekuzio Motorra ===");
+    for(int j = 0; j < hariTotalak; j++){
+        haria *h = cpu.hariakIlara[j];
+        if(h->pcb != NULL && h->pcb->running){
+            exekutatuProzesua(h);
         }
-    }
-    else{
-        DispacherZikloa=0;
     }
 }
 
