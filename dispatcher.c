@@ -6,7 +6,6 @@
 #include "gertaerak.h"
 
 void Dispatcher(PCB *jasotakopcb){
-    jasotakopcb->running=1;
     haria *esleitua = lortuHariAskea(jasotakopcb->preferentziaCPU);
     if (esleitua==NULL){
         printf("<-- CPU osoa okupatuta dago ezin da haririk sartu CPUan. ");
